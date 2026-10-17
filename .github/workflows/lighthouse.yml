@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     # Eight URLs at three runs each (see lighthouserc.cjs) rather than one.
     timeout-minutes: 30
+    env:
+      # dist/ is served at the server root here, so build without the base path.
+      SITE_BASE: /
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

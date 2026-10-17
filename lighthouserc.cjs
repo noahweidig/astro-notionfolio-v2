@@ -1,7 +1,7 @@
 const path = require('node:path');
 
-// The site is served at the apex (`base` is `/` in astro.config.mjs), so
-// staticDistDir serves dist itself at "/" — the same shape the server serves.
+// The workflow builds with SITE_BASE=/ (see astro.config.mjs), so staticDistDir
+// serves dist itself at "/" — the same shape as a site served from a root.
 const ROOT = path.resolve(__dirname, 'dist');
 
 const url = (p) => `http://localhost/${p}`;
