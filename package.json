@@ -44,7 +44,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@casoon/astro-post-audit": "0.9.1",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "@types/sanitize-html": "^2.16.1",
     "axe-core": "^4.14.0",
     "js-yaml": "^5.4.3",
