@@ -45,7 +45,10 @@ for (const name of COLLECTIONS) {
 
 // site.url may carry a path (https://user.github.io/my-repo): the origin is
 // Astro's `site`, the path its `base`. Dev serves from the root either way.
-const { origin: siteOrigin, base: siteBase } = splitSiteUrl(config.site.url);
+// SITE_BASE overrides the path: CI jobs that serve dist/ at a server root
+// (Lighthouse, the post-build audit) build with SITE_BASE=/.
+const { origin: siteOrigin, base: configBase } = splitSiteUrl(config.site.url);
+const siteBase = process.env.SITE_BASE ?? configBase;
 const base = process.argv.includes('dev') || process.argv.includes('start') ? '/' : siteBase;
 
 export default defineConfig({
