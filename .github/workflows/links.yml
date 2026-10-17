@@ -31,17 +31,19 @@ jobs:
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           # Check the rendered site so generated links are covered too.
-          # your-domain is excluded: the site's own links are absolute in
+          # noahweidig.com is excluded: the site's own links are absolute in
           # every canonical and og:url tag, so checking them live would score
           # production rather than the build under test — a renamed or added
           # route fails here until it deploys. The build's internal links are
-          # covered anyway, through --root-dir; the handful of your-domain
+          # covered anyway, through --root-dir; the handful of noahweidig.com
           # paths served by separate project-pages repos are covered live by
           # production-audit.yml, which crawls the deployed site weekly.
           # Accepted codes: 403/429 (bot blocking), 405 (Formspree POST
           # endpoint), 415 (a site's WAF rejects the CI request
           # though the page loads 200 in a browser), 999 (LinkedIn).
-          # Excluded: the example.* placeholder hosts and the fictional profile
+          # Excluded: the site's own origin (canonical and og:url tags are
+          # absolute, so checking them live would score production, not this
+          # build), the example.* placeholder hosts and the fictional profile
           # URLs in site.config.ts and the sample content. Remove them once the
           # config holds real values.
           args: >-
@@ -49,6 +51,7 @@ jobs:
             --root-dir ${{ github.workspace }}/dist
             --accept '100..=103,200..=299,403,405,415,429,999'
             --exclude 'example\.(com|org|edu|gov)'
+            --exclude 'noahweidig\.com'
             --exclude 'doi\.org/10\.0000/'
             --exclude 'github\.com/johnsmith'
             --exclude 'linkedin\.com/in/johnsmith'
