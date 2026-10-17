@@ -15,7 +15,8 @@ import { fileURLToPath } from 'node:url';
 import { config } from '../site.config.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const origin = new URL(config.site.url).origin;
+const siteUrl = config.site.url.replace(/\/+$/, '');
+const origin = new URL(siteUrl).origin;
 const host = new URL(origin).hostname;
 
 function write(rel, content) {
@@ -34,7 +35,7 @@ else if (fs.existsSync(cname)) {
   console.log('sync-config: removed public/CNAME');
 }
 
-write('public/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap-index.xml\n`);
+write('public/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap-index.xml\n`);
 
 const manifestFile = path.join(root, 'public/site.webmanifest');
 const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
@@ -45,7 +46,7 @@ write('public/site.webmanifest', `${JSON.stringify(manifest, null, 2)}\n`);
 for (const page of ['contact', 'cv', 'privacy', 'styleguide']) {
   const rel = `public/${page}.html`;
   const html = fs.readFileSync(path.join(root, rel), 'utf8');
-  write(rel, html.replace(/(rel="canonical" href=")[^"]*(")/, `$1${origin}/${page}/$2`));
+  write(rel, html.replace(/(rel="canonical" href=")[^"]*(")/, `$1${siteUrl}/${page}/$2`));
 }
 
 const wrangler = path.join(root, 'worker/wrangler.toml');

@@ -190,6 +190,10 @@ export function initSearch() {
     });
   };
 
+  /* Pagefind reports paths relative to the site root; a subpath deploy
+     (site.url with a path) needs the base put back in front. */
+  const withBase = (u: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + u;
+
   const renderResults = (items: PagefindData[], hits: Hit[], q: string) => {
     /* Trailing slashes trimmed by hand: a `/+$` regex backtracks on a long
        run of them for no gain. */
@@ -198,7 +202,7 @@ export function initSearch() {
       while (end > 0 && href[end - 1] === '/') end--;
       return `${href.slice(0, end)}/`;
     };
-    const seen = new Set(items.map((d) => key(d.url)));
+    const seen = new Set(items.map((d) => key(withBase(d.url))));
 
     /* One ranked list rather than two. Pagefind ranks on body text, which puts
        a page whose only tie to the query is a stray initial above the paper the
@@ -210,7 +214,7 @@ export function initSearch() {
       const title = d.meta.title ?? d.url;
       const titleScore = scoreDoc(q, { t: title, u: d.url, s: d.meta.section ?? '' })?.score ?? 0;
       return {
-        href: d.url,
+        href: withBase(d.url),
         title: markQuery(title, q),
         section: d.meta.section ?? '',
         sub: d.excerpt,
