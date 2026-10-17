@@ -1,0 +1,98 @@
+name: Publish website
+
+on:
+  push:
+    branches: [main]
+  # Render-only check for PRs so a broken site never reaches main.
+  pull_request:
+    branches: [main]
+  # Called by update-pubs.yml after the Zotero sync commits new publications.
+  # Pushes made with GITHUB_TOKEN don't fire `push` workflows, so without this
+  # the bot's commit sits on main undeployed until someone happens to push
+  # (#247). A `workflow_call` keeps the deploy inside the sync's own run — it
+  # fails there if it fails — and avoids the `workflow_run` + checkout-a-ref
+  # pattern, which grants write credentials to a checkout of code the trigger
+  # doesn't control.
+  workflow_call:
+  workflow_dispatch:
+
+# Least privilege at the workflow level: only the deploy job needs to write
+# to Pages, and the build job checks out PR code from forks — so it runs with
+# read-only credentials.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.event.number) || 'pages' }}
+  # Cancel superseded PR render checks, but never a production deploy: killing
+  # a run mid-`deploy-pages` cancels the Pages deployment it is waiting on
+  # (that is where the "Deployment cancelled" failures came from), and the
+  # queued replacement then inherits a half-finished deployment. Production
+  # runs queue instead, so each deployment finishes before the next starts.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Every other gate in this repo checks the *output* — axe and Lighthouse
+  # both run against rendered pages. This one checks the input: formatting
+  # across the source tree, plus `astro check`, which type-checks every
+  # component, page and content-collection schema.
+  lint:
+    runs-on: ubuntu-latest
+    # `npm run lint` is ~20s; the rest is `npm ci`, which on a cold npm cache
+    # takes minutes for this tree. Five minutes left no headroom for that and
+    # the job was killed mid-install.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install toolchain
+        uses: ./.github/actions/build-site
+        with:
+          build: 'false'
+      - name: Lint sources
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      # No `ref:` — every event that reaches this workflow (push, PR,
+      # dispatch, and the sync's workflow_call) checks out its own ref.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build site
+        uses: ./.github/actions/build-site
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          # The action's default is 10 minutes, after which it gives up AND
+          # cancels the deployment it was polling. Pages holds a deployment in
+          # `deployment_in_progress` well past that whenever it is also syncing
+          # the custom domain or (re)issuing the domain's TLS certificate — the
+          # content is already served by then, so aborting throws away a
+          # deployment that had effectively succeeded. 25 minutes covers the
+          # domain-sync case; a deployment genuinely stuck still fails, just
+          # later. Kept under the job's 30-minute cap so the action reports the
+          # timeout itself instead of the runner killing the job.
+          timeout: 600000

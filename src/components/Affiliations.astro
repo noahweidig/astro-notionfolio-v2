@@ -1,0 +1,37 @@
+---
+import { config } from '../../site.config.ts';
+
+const orgs = config.home.affiliations;
+---
+
+<div class="mt-12" id="affiliations" data-reveal>
+  <p class="text-center text-xs font-medium text-faint">Worked with</p>
+  <div class="relative mt-5" data-affil>
+    <ul class="affil-track" tabindex="0" aria-label="Institutions I have worked with">
+      {orgs.map(({ name, href, logo }) => (
+        <li class="contents">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener"
+            aria-label={`${name} (opens in a new tab)`}
+            class="card affil-card"
+          >
+            <span
+              class="affil-logo"
+              style={`--affil-logo:url(/media/icons/custom/${logo}.svg)`}
+              aria-hidden="true"
+            ></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <span
+      class="affil-fade pointer-events-none transition-opacity duration-200 absolute inset-y-0 right-0 w-10"
+      aria-hidden="true"
+    ></span>
+  </div>
+  <p class="affil-hint mt-3 text-center text-xs font-medium text-faint" aria-hidden="true">
+    Swipe →
+  </p>
+</div>

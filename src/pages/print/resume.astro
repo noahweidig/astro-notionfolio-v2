@@ -1,0 +1,231 @@
+---
+import { getCollection } from 'astro:content';
+import Print from '../../layouts/Print.astro';
+import { site, socials, skills } from '../../lib/site';
+import { config } from '../../../site.config.ts';
+import { byDate, firstSentence, year } from '../../lib/format';
+
+/**
+ * The one-page résumé, printed to public/uploads/resume.pdf by
+ * scripts/generate-pdfs.mjs. Summary, education, experience and skills only —
+ * publications live on the CV.
+ */
+const education = (await getCollection('education')).sort(byDate);
+const experience = (await getCollection('experience')).sort(byDate);
+
+/** The markdown bullets under a role, which read better than its abstract. */
+const bullets = (body = '', max = 2) =>
+  body
+    .split('\n')
+    .filter((l) => l.trimStart().startsWith('- '))
+    .map((l) => l.trim().slice(2).trim())
+    .slice(0, max);
+
+const summary = config.person.resumeSummary;
+---
+
+<Print title="Résumé" description={firstSentence(summary, 155)}>
+  <header class="head keep">
+    <h1>{site.name}</h1>
+    <p class="role">{site.role}</p>
+    <p class="contact">
+      <span>{site.email}</span>
+      <span>{site.location}</span>
+      <span>{site.url.replace(/^https?:\/\//, '')}</span>
+      {socials.map((s) => (
+        <a href={s.href}>
+          {s.label} — {s.href.replace(/^https?:\/\//, '')}
+        </a>
+      ))}
+    </p>
+  </header>
+
+  <p class="summary">{summary}</p>
+
+  <section class="keep">
+    <h2>Education</h2>
+    {education.map((e) => (
+      <div class="entry keep">
+        <div class="row">
+          <h3>{e.data.title}</h3>
+          <span class="when">{e.data.dates ?? year(e.data.date)}</span>
+        </div>
+        <p class="org">
+          {e.data.org}
+          {e.data.location ? ` · ${e.data.location}` : ''}
+        </p>
+        {e.data.description && <p class="note">{e.data.description}</p>}
+      </div>
+    ))}
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+    {experience.map((e, i) => {
+      const points = bullets(e.body, i < 3 ? 2 : 1);
+      const items = points.length ? points : e.data.description ? [e.data.description] : [];
+      return (
+        <div class="entry keep">
+          <div class="row">
+            <h3>{e.data.title}</h3>
+            <span class="when">{e.data.dates ?? year(e.data.date)}</span>
+          </div>
+          <p class="org">
+            {e.data.org}
+            {e.data.location ? ` · ${e.data.location}` : ''}
+          </p>
+          {items.length > 0 && (
+            <ul>
+              {items.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      );
+    })}
+  </section>
+
+  <section class="keep">
+    <h2>Skills</h2>
+    <dl class="skills">
+      {skills.map(([cat, list]) => (
+        <div class="skill-row">
+          <dt>{cat}</dt>
+          <dd>{list}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+</Print>
+
+<style>
+  /* Type and rhythm follow the site: Inter throughout, kept neutral here
+     rather than carrying the site's gold accent into a printed record. */
+  .head {
+    text-align: center;
+    border-bottom: 1.5px solid var(--c-line-strong);
+    padding-bottom: 0.5rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 1.85em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .role {
+    margin: 0.1em 0 0;
+    color: var(--c-ink);
+    font-size: 0.92em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .contact {
+    margin: 0.32em 0 0;
+    font-size: 0.72em;
+    color: var(--c-dim);
+  }
+  .contact > * + *::before {
+    content: '·';
+    margin: 0 0.45em;
+    color: var(--c-line-strong);
+  }
+  .contact a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .summary {
+    margin: 0.5em 0 0;
+    font-size: 0.78em;
+    line-height: 1.5;
+    color: var(--c-dim);
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  section {
+    margin-top: 0.85em;
+  }
+  h2 {
+    font-family: var(--font-mono);
+    font-size: 0.66em;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--c-ink);
+    border-bottom: 1px solid var(--c-line);
+    padding-bottom: 0.25em;
+    margin: 0 0 0.45em;
+  }
+
+  .entry + .entry {
+    margin-top: 0.5em;
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1em;
+  }
+  h3 {
+    font-family: var(--font-sans);
+    font-size: 0.86em;
+    font-weight: 650;
+    margin: 0;
+    letter-spacing: -0.005em;
+  }
+  .when {
+    font-family: var(--font-mono);
+    font-size: 0.66em;
+    color: var(--c-dim);
+    white-space: nowrap;
+  }
+  .org {
+    margin: 0.05em 0 0;
+    font-size: 0.76em;
+    color: var(--c-dim);
+  }
+  .note {
+    margin: 0.12em 0 0;
+    font-size: 0.74em;
+    color: var(--c-dim);
+  }
+  ul {
+    margin: 0.18em 0 0;
+    padding-left: 1.05em;
+    list-style: disc;
+  }
+  li {
+    font-size: 0.74em;
+    color: var(--c-dim);
+    margin-top: 0.08em;
+  }
+  li::marker {
+    color: var(--c-line-strong);
+  }
+
+  .skills {
+    margin: 0;
+    display: grid;
+    gap: 0.18em;
+  }
+  .skill-row {
+    display: grid;
+    grid-template-columns: 9.5em 1fr;
+    gap: 0.6em;
+  }
+  dt {
+    font-family: var(--font-mono);
+    font-size: 0.64em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c-dim);
+    padding-top: 0.15em;
+  }
+  dd {
+    margin: 0;
+    font-size: 0.76em;
+    color: var(--c-dim);
+  }
+</style>

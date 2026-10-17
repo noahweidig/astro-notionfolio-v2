@@ -1,0 +1,74 @@
+---
+interface Props {
+  class?: string;
+  iconOnlyNarrow?: boolean;
+}
+import { site } from '../lib/site';
+const { class: cls = '', iconOnlyNarrow = false } = Astro.props;
+const first = site.firstName.toLowerCase();
+const last = site.lastName.toLowerCase();
+---
+
+<span class:list={['wm-lockup', { 'wm-icon-narrow': iconOnlyNarrow }, cls]}>
+  <svg class="wm-mark" viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"
+      fill="var(--logo-yellow)"
+      stroke="var(--logo-yellow)"
+    ></path>
+    <rect
+      x="3"
+      y="14"
+      width="7"
+      height="7"
+      rx="1"
+      fill="var(--logo-blue)"
+      stroke="var(--logo-blue)"
+    ></rect>
+    <circle cx="17.5" cy="17.5" r="3.5" fill="var(--logo-red)" stroke="var(--logo-red)"></circle>
+  </svg>
+  <span class="sr-only">{site.name} — home</span>
+  <span class="wm font-display font-semibold tracking-tight" aria-hidden="true">
+    <span>{first.slice(0, 1)}</span>
+    <span>{first.slice(1)}</span>
+    <span class="wm-ink">{last.slice(0, 1)}</span>
+    <span class="wm-ink">{last.slice(1)}</span>
+  </span>
+</span>
+
+<style>
+  /* Logo mark: Lucide's triangle, square and circle (the `shapes` icon), solid. */
+  .wm-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  .wm-mark {
+    width: 1.55em;
+    height: 1.55em;
+    flex: none;
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  /* A tinted tag, same wash as the hero's rolling pill and the cover tags. */
+  .wm {
+    display: inline-flex;
+    padding: 0.3em 0.85em 0.35em;
+    border-radius: var(--radius-sm);
+    color: var(--c-accent-ink);
+    background: color-mix(in oklab, var(--c-accent-ink) 18%, var(--c-surface));
+    white-space: nowrap;
+  }
+  .wm > span {
+    display: inline-block;
+  }
+  .wm > .wm-ink {
+    color: var(--c-ink);
+  }
+  @media (max-width: 380px) {
+    .wm-icon-narrow .wm {
+      display: none;
+    }
+  }
+</style>

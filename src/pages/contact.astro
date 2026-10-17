@@ -1,0 +1,174 @@
+---
+import { tintAt } from '../lib/tint';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import HeroPanel from '../components/HeroPanel.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/site';
+import { config } from '../../site.config.ts';
+
+const { contact } = config;
+
+const facts = [
+  { icon: 'mail', label: 'Email', value: site.email, href: `mailto:${site.email}` },
+  { icon: 'pin', label: 'Location', value: site.location },
+  { icon: 'briefcase', label: 'Open to', value: contact.openTo },
+  ...(site.booking
+    ? [{ icon: 'calendar', label: 'Book a call', value: site.bookingLabel, href: site.booking }]
+    : []),
+];
+---
+
+<Base
+  title="Get in touch"
+  description={`Email me, book a call, or send a message. I reply ${contact.replyTime}.`}
+  image="/media/og/contact.webp"
+  imageAlt={`Contact ${site.name}`}
+  filters={{ section: 'Page' }}
+>
+  <PageHero
+    title="Get in touch"
+    kicker="Contact"
+    icon="mail"
+    intro={`Email me, book a call, or send a message. I reply ${contact.replyTime}.`}
+    hasActions
+    hasAside
+  >
+    <Fragment slot="actions">
+      <a class="btn btn-primary" href={`mailto:${site.email}`}>
+        {site.email}
+        <Icon name="mail" size={14} />
+      </a>
+      {site.booking && (
+        <a class="btn btn-ghost" href={site.booking} target="_blank" rel="noopener">
+          Book a call
+          <Icon name="calendar" size={14} />
+          <span class="sr-only-nw"> (opens in a new tab)</span>
+        </a>
+      )}
+    </Fragment>
+    <HeroPanel slot="aside" title="Quick facts">
+      <ul class="grid">
+        {[
+          ['mail', site.email],
+          ['pin', site.location],
+          ['clock', `Replies ${contact.replyTime}`],
+        ].map(([icon, text]) => (
+          <li class="flex items-center gap-3 border-b border-line py-3 text-body-lg last:border-0">
+            <Icon name={icon!} size={15} class="shrink-0 text-accent-ink" />
+            {text}
+          </li>
+        ))}
+      </ul>
+    </HeroPanel>
+  </PageHero>
+
+  <div class="shell py-14 md:py-20">
+    <div class="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 [&>*]:min-w-0">
+      <div data-reveal>
+        <h2 class="font-display text-2xl">{config.contactPage.heading}</h2>
+        <p class="mt-4 leading-relaxed text-dim">{config.contactPage.body}</p>
+
+        <ul class="mt-8 grid gap-3">
+          {facts.map((f, i) => (
+            <li class="card flex min-w-0 items-center gap-4 p-4">
+              <span
+                class={`grid h-10 w-10 shrink-0 place-items-center rounded-sm tile-${tintAt(i)}`}
+              >
+                <Icon name={f.icon} size={18} />
+              </span>
+              <span class="min-w-0">
+                <small class="block text-xs font-medium text-faint">{f.label}</small>
+                {f.href ? (
+                  <a
+                    href={f.href}
+                    target={f.href.startsWith('http') ? '_blank' : undefined}
+                    rel={f.href.startsWith('http') ? 'noopener' : undefined}
+                    class="block truncate text-body-lg text-accent-ink hover:underline"
+                  >
+                    {f.value}
+                  </a>
+                ) : (
+                  <span class="block truncate text-body-lg">{f.value}</span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <form
+        class="card p-6 md:p-8"
+        action={contact.formEndpoint}
+        method="POST"
+        data-contact-form
+        data-reveal
+      >
+        <div class="grid gap-5 [&>*]:min-w-0">
+          <div class="grid gap-2 [&>*]:min-w-0">
+            <label for="form-name" class="text-sm font-medium">
+              Your name
+            </label>
+            <input
+              id="form-name"
+              type="text"
+              name="name"
+              placeholder="Jane Doe"
+              autocomplete="name"
+              required
+              class="w-full rounded-md border border-control bg-card placeholder:text-faint px-3.5 py-2.5 text-body-lg transition-colors focus:border-accent"
+            />
+          </div>
+          <div class="grid gap-2 [&>*]:min-w-0">
+            <label for="form-email" class="text-sm font-medium">
+              Your email
+            </label>
+            <input
+              id="form-email"
+              type="email"
+              name="email"
+              placeholder="jane@example.com"
+              autocomplete="email"
+              required
+              class="w-full rounded-md border border-control bg-card placeholder:text-faint px-3.5 py-2.5 text-body-lg transition-colors focus:border-accent"
+            />
+          </div>
+          <div class="grid gap-2 [&>*]:min-w-0">
+            <label for="form-message" class="text-sm font-medium">
+              Your message
+            </label>
+            <textarea
+              id="form-message"
+              name="message"
+              rows="6"
+              placeholder="What you're working on, and how I can help"
+              required
+              class="w-full resize-y rounded-md border border-control bg-card placeholder:text-faint px-3.5 py-2.5 text-body-lg transition-colors focus:border-accent"
+            ></textarea>
+          </div>
+
+          {/* Spam trap: Formspree drops any submission that fills `_gotcha`, so
+              it works with JS off. Off-screen rather than display:none, because
+              some bots skip hidden inputs. */}
+          <div class="sr-only-nw" aria-hidden="true">
+            <label for="form-company">Company — leave this field empty</label>
+            <input id="form-company" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+          </div>
+          <input type="hidden" name="nw-form-started" value="" />
+
+          <p
+            class="rounded-md border px-3.5 py-2.5 text-sm empty:border-0 empty:p-0 data-[state=error]:border-ember/50 data-[state=error]:text-ember data-[state=ok]:border-moss/50 data-[state=ok]:text-moss"
+            data-form-status
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <button class="btn btn-primary w-full" type="submit">
+            Send message
+            <Icon name="arrow" size={15} />
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</Base>

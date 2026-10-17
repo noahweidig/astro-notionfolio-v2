@@ -1,0 +1,94 @@
+---
+// Posts directly to Substack's own subscribe endpoint instead of embedding
+// their iframe widget, so the form can be styled to match the site instead
+// of Substack's own chrome. The response is cross-origin (can't be read back
+// into the page), so a real POST goes to a hidden same-page iframe — no
+// navigation, no redirect — and the form optimistically swaps to a
+// confirmation once it's sent, the same assumption Substack's own embed
+// widget makes.
+import { site } from '../lib/site';
+
+const substackUrl = site.newsletter.replace(/\/$/, '');
+const frameName = 'substack-newsletter-frame';
+---
+
+<div class="newsletter-form relative w-full max-w-full min-w-0 sm:w-auto" data-newsletter>
+  <form
+    action={`${substackUrl}/api/v1/free`}
+    method="post"
+    target={frameName}
+    data-newsletter-form
+    class="newsletter-pill flex w-full min-w-0 flex-nowrap items-center rounded-sm border border-control sm:w-80"
+  >
+    <label for="newsletter-email" class="sr-only-nw">
+      Email address
+    </label>
+    <input
+      id="newsletter-email"
+      type="email"
+      name="email"
+      required
+      placeholder="you@example.com"
+      autocomplete="email"
+      class="newsletter-input h-10 w-0 min-w-0 flex-1 rounded-sm border-0 pr-2 pl-3 text-small text-ink focus-visible:outline-none"
+    />
+    <button
+      type="submit"
+      class="btn btn-primary newsletter-submit m-1 h-8 shrink-0 rounded-xs px-4 text-small"
+    >
+      Subscribe
+    </button>
+  </form>
+  <p data-newsletter-note class="mt-2 text-xs text-dim">
+    No spam. Unsubscribe anytime.
+  </p>
+  <p data-newsletter-confirm hidden tabindex="-1" class="text-body-lg text-dim">
+    Thanks — check your inbox to confirm.
+  </p>
+  <iframe name={frameName} hidden title="Newsletter subscription"></iframe>
+</div>
+
+<style>
+  @layer components {
+    .newsletter-form .newsletter-pill {
+      background: var(--c-raised);
+    }
+    .newsletter-form .newsletter-pill:focus-within {
+      border-color: var(--c-accent-ink);
+      outline: 2px solid var(--c-accent);
+      outline-offset: 2px;
+    }
+    .newsletter-form .newsletter-input {
+      background: var(--c-raised);
+      color: var(--c-ink);
+      /* iOS Safari zooms the page on focus when an input's font-size is under 16px; the site's text-body-lg (0.95rem) sits just below that. */
+      font-size: max(1rem, var(--text-body-lg));
+    }
+    .newsletter-form .newsletter-input::placeholder {
+      color: var(--c-dim);
+    }
+  }
+</style>
+
+<script>
+  function bindNewsletterForms() {
+    document.querySelectorAll<HTMLElement>('[data-newsletter]').forEach((root) => {
+      const form = root.querySelector<HTMLFormElement>('[data-newsletter-form]');
+      const note = root.querySelector<HTMLElement>('[data-newsletter-note]');
+      const confirmMsg = root.querySelector<HTMLElement>('[data-newsletter-confirm]');
+      if (!form || form.dataset.bound) return;
+      form.dataset.bound = 'true';
+      form.addEventListener('submit', () => {
+        // The POST still happens (target is the hidden iframe); this just
+        // swaps the UI without waiting on a cross-origin response we can't read.
+        form.hidden = true;
+        if (note) note.hidden = true;
+        if (confirmMsg) {
+          confirmMsg.hidden = false;
+          confirmMsg.focus();
+        }
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', bindNewsletterForms);
+</script>

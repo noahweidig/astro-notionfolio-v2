@@ -1,0 +1,86 @@
+---
+import { config } from '../../../site.config.ts';
+import { getCollection } from 'astro:content';
+import { byDate } from '../../lib/format';
+import Page from '../../layouts/Page.astro';
+import HeroPanel from '../../components/HeroPanel.astro';
+import Icon from '../../components/Icon.astro';
+import { socials, site } from '../../lib/site';
+import CitationRow from '../../components/CitationRow.astro';
+import FilterBar from '../../components/FilterBar.astro';
+
+const all = (await getCollection('publications')).sort(byDate);
+/* Zotero exports one record per appearance; only the flagged record is listed
+   so a talk given four times reads as one work, not four near-identical rows. */
+const listed = all.filter((p) => p.data['pub-listed'] === 'yes');
+const journal = listed.filter((p) => p.data.categories.includes('Journal Article'));
+const other = listed.filter((p) => !p.data.categories.includes('Journal Article'));
+
+const categories = [...new Set(listed.flatMap((p) => p.data.categories))].sort();
+const firstAuthor = all.filter((p) =>
+  (p.data['pub-authors'] ?? '').trim().startsWith(`**${config.authorMatch.family}`),
+).length;
+const citations = all.reduce((n, p) => n + (p.data['pub-citations'] ?? 0), 0);
+
+const stats = [
+  { value: listed.length, label: 'Publications & Talks' },
+  { value: journal.length, label: 'Journal Articles' },
+  { value: firstAuthor, label: 'First-Author Works' },
+  { value: citations, label: 'Citations' },
+];
+---
+
+<Page
+  icon="file"
+  section="Publications"
+  title="Publications"
+  kicker="Research output"
+  description="A live feed of my research output, pulled automatically from Zotero."
+  intro="A live feed of my research output, pulled automatically from Zotero. Updated on the 1st and 15th of each month."
+  image="/media/og/publications.webp"
+  imageAlt={`${site.name}'s publications and research output`}
+>
+  <HeroPanel slot="hero-aside" title="By the numbers" stats={stats} />
+  <Fragment slot="hero-actions">
+    <a
+      class="btn btn-primary"
+      href={socials.find((s) => s.label === 'Google Scholar')!.href}
+      target="_blank"
+      rel="noopener"
+    >
+      Google Scholar
+      <Icon name="scholar" size={14} />
+    </a>
+    <a class="btn btn-ghost" href={site.cv}>
+      Download CV
+      <Icon name="download" size={14} />
+    </a>
+  </Fragment>
+
+  <div class="mt-10">
+    <FilterBar
+      categories={categories}
+      target="#pubs-journal, #pubs-other"
+      noun="publications"
+      total={listed.length}
+    />
+  </div>
+
+  <section class="mt-12" data-filter-section>
+    <h2 class="font-display text-2xl">Peer-Reviewed Journal Articles</h2>
+    <div id="pubs-journal" class="mt-4">
+      {journal.map((entry) => (
+        <CitationRow entry={entry} />
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-14" data-filter-section>
+    <h2 class="font-display text-2xl">Other Research Output</h2>
+    <div id="pubs-other" class="mt-4">
+      {other.map((entry) => (
+        <CitationRow entry={entry} />
+      ))}
+    </div>
+  </section>
+</Page>

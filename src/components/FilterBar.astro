@@ -1,0 +1,33 @@
+---
+import { tintFor } from '../lib/tint';
+
+interface Props {
+  categories: string[];
+  target: string;
+  noun: string;
+  total: number;
+}
+const { categories, target, noun, total } = Astro.props;
+---
+
+<div
+  class="pill-row flex flex-wrap items-center gap-2"
+  data-filter-bar
+  data-filter-for={target}
+  data-filter-noun={noun}
+  role="group"
+  aria-label={`Filter ${noun} by category`}
+  data-reveal
+>
+  <button type="button" class="pill" data-filter="*" aria-pressed="true">
+    All
+  </button>
+  {categories.map((c) => (
+    <button type="button" class={`pill pill-${tintFor(c)}`} data-filter={c} aria-pressed="false">
+      {c}
+    </button>
+  ))}
+  <span class="ml-auto text-xs font-medium text-faint" data-filter-count aria-live="polite">
+    {total} {noun}
+  </span>
+</div>

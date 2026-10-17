@@ -1,0 +1,45 @@
+---
+import Icon from './Icon.astro';
+import { iconFor, tintFor } from '../lib/tint';
+
+interface Props {
+  kicker?: string;
+  title: string;
+  subtitle?: string;
+  href?: string;
+  linkText?: string;
+  tint?: 'blue' | 'green' | 'yellow' | 'pink' | 'purple' | 'teal' | 'red';
+}
+const { kicker, title, subtitle, href, linkText } = Astro.props;
+const glyph = kicker ? iconFor(kicker) : undefined;
+const tint = Astro.props.tint ?? (kicker ? tintFor(kicker) : undefined);
+---
+
+<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between" data-reveal>
+  <div>
+    {kicker && (
+      <p class:list={['kicker', tint && `tint-${tint}`]}>
+        {glyph && <Icon name={glyph} size={14} />}
+        {kicker}
+      </p>
+    )}
+    <h2 class="section-title">{title}</h2>
+    {subtitle && <p class="lede mt-3">{subtitle}</p>}
+  </div>
+  {href && (
+    <a
+      href={href}
+      class:list={[
+        'btn btn-outline group hidden shrink-0 md:inline-flex',
+        tint && `btn-tint tint-${tint}`,
+      ]}
+    >
+      {linkText ?? 'View all'}
+      <Icon
+        name="arrow"
+        size={15}
+        class="transition-transform duration-300 group-hover:translate-x-1"
+      />
+    </a>
+  )}
+</div>
