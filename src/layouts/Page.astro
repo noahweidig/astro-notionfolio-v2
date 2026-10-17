@@ -1,0 +1,68 @@
+---
+import Base from './Base.astro';
+import PageHero from '../components/PageHero.astro';
+
+interface Props {
+  title: string;
+  kicker?: string;
+  /** Icon in the round chip beside the kicker. */
+  icon?: string;
+  /** Tighter hero, for pages that are mostly a document. */
+  compact?: boolean;
+  description?: string;
+  intro?: string;
+  wide?: boolean;
+  noindex?: boolean;
+  section?: string;
+  /** Ancestors between Home and this page; most section indexes have none. */
+  trail?: { label: string; href?: string }[];
+  /** This page's own og:image, in place of the sitewide default. */
+  image?: string;
+  /** Describes what `image` shows, for og:image:alt / twitter:image:alt. */
+  imageAlt?: string;
+}
+const {
+  title,
+  kicker,
+  icon,
+  compact,
+  description,
+  intro,
+  wide = true,
+  noindex,
+  section,
+  trail = [],
+  image,
+  imageAlt,
+} = Astro.props;
+---
+
+<Base
+  title={title}
+  description={description}
+  image={image}
+  imageAlt={imageAlt}
+  noindex={noindex}
+  filters={{ section }}
+>
+  <Fragment slot="head">
+    <slot name="head" />
+  </Fragment>
+  <PageHero
+    title={title}
+    kicker={kicker}
+    icon={icon}
+    compact={compact}
+    intro={intro}
+    trail={trail}
+    hasActions={Astro.slots.has('hero-actions')}
+    hasAside={Astro.slots.has('hero-aside')}
+  >
+    <slot name="hero-actions" slot="actions" />
+    <slot name="hero-aside" slot="aside" />
+  </PageHero>
+
+  <div class:list={[wide ? 'shell' : 'shell-body', 'py-14 md:py-20']}>
+    <slot />
+  </div>
+</Base>

@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import HeroPanel from '../../components/HeroPanel.astro';
+import Icon from '../../components/Icon.astro';
+import { site, socials } from '../../lib/site';
+import ProjectCard from '../../components/ProjectCard.astro';
+import FilterBar from '../../components/FilterBar.astro';
+import { byDate, year } from '../../lib/format';
+
+const projects = (await getCollection('projects')).sort(byDate);
+const categories = [...new Set(projects.flatMap((p) => p.data.categories))].sort();
+const stats = [
+  { value: projects.length, label: 'Projects' },
+  { value: projects.filter((p) => p.data.featured).length, label: 'Featured Projects' },
+  { value: categories.length, label: 'Topic Areas' },
+  { value: year(projects[0]!.data.date), label: 'Latest Release' },
+];
+---
+
+<Page
+  icon="terminal"
+  section="Projects"
+  title="Selected Projects"
+  kicker="Selected work"
+  description="I build tools and turn ideas into reality. Here's a selection of projects I've created over the years."
+  intro="I build tools and turn ideas into reality. Here's a selection of projects I've created over the years."
+  image="/media/og/projects.webp"
+  imageAlt={`${site.name}'s project portfolio`}
+>
+  <HeroPanel slot="hero-aside" title="At a glance" stats={stats} />
+  <Fragment slot="hero-actions">
+    <a class="btn btn-primary" href="#project-grid">
+      Browse all projects
+      <Icon name="arrow" size={14} />
+    </a>
+    <a
+      class="btn btn-ghost"
+      href={socials.find((s) => s.label === 'GitHub')!.href}
+      target="_blank"
+      rel="noopener"
+    >
+      GitHub
+      <Icon name="github" size={14} />
+    </a>
+  </Fragment>
+
+  <div class="mt-10">
+    <FilterBar
+      categories={categories}
+      target="#project-grid"
+      noun="projects"
+      total={projects.length}
+    />
+  </div>
+
+  <h2 class="sr-only-nw">All projects</h2>
+  <div id="project-grid" class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {projects.map((entry, i) => (
+      <ProjectCard entry={entry} index={i} />
+    ))}
+  </div>
+</Page>

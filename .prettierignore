@@ -1,0 +1,9 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+public/
+# Zotero-generated; rewritten wholesale by scripts/update-pubs.js.
+src/content/publications/
+.claude/
+.github/

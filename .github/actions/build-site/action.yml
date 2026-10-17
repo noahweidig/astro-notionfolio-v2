@@ -1,0 +1,41 @@
+name: Build site
+description: >-
+  Install the pinned toolchain and build the Astro site into dist/, including
+  the Pagefind search index. Used by every workflow that needs a build, so
+  they all score the same bytes that get deployed.
+
+inputs:
+  build:
+    description: Whether to run the build. Set to "false" to only install the toolchain.
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+
+    # --ignore-scripts: nothing in the build needs a lifecycle script, and an
+    # install that runs them is arbitrary code execution on the runner. The
+    # two packages that do ship a postinstall (sharp, pagefind) resolve their
+    # binaries lazily at first use, so skipping it costs nothing here.
+    - name: Install toolchain
+      shell: bash
+      # --no-audit/--no-fund/--prefer-offline: the audit and funding passes are
+      # network round trips this install has no use for, and --prefer-offline
+      # keeps `npm ci` on the setup-node cache instead of refetching tarballs.
+      # The tree here is ~630 MB (puppeteer, sharp),
+      # so the install, not the work, is what the job timeouts have to cover.
+      run: npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
+
+    - name: Unit tests
+      shell: bash
+      run: npm test
+
+    - name: Build site
+      if: inputs.build == 'true'
+      shell: bash
+      run: npm run build:fast

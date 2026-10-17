@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import HeroPanel from '../../components/HeroPanel.astro';
+import Icon from '../../components/Icon.astro';
+import AwardCard from '../../components/AwardCard.astro';
+import { byDate, year } from '../../lib/format';
+
+const awards = (await getCollection('awards')).sort(byDate);
+
+/* Funding is read off the "· $2,000" tail each award's description carries. */
+const funding = awards.reduce((sum, a) => {
+  const m = /\$([\d,]+)/.exec(a.data.description ?? '');
+  return sum + (m ? Number(m[1]!.replace(/,/g, '')) : 0);
+}, 0);
+/* "Lorem Ipsum University, College of … · $2,000" → "Lorem Ipsum University". */
+const institutions = new Set(
+  awards
+    .map((a) => (a.data.description ?? '').split('·')[0]!.split(',')[0]!.trim())
+    .filter(Boolean),
+);
+const years = new Set(awards.map((a) => year(a.data.date)));
+
+const stats = [
+  { value: awards.length, label: 'Awards & Honors' },
+  { value: `$${Math.round(funding / 1000)}k`, label: 'Awarded' },
+  { value: institutions.size, label: 'Awarding Institutions' },
+  { value: years.size, label: 'Years Recognized' },
+];
+---
+
+<Page
+  icon="trophy"
+  section="Awards"
+  title="Awards & Honors"
+  kicker="Recognition"
+  description="Awards, scholarships, grants, and honors I've received over the years."
+  intro="Awards, scholarships, grants, and honors I've received over the years."
+  image="/media/og/awards.webp"
+>
+  <HeroPanel slot="hero-aside" title="By the numbers" stats={stats} />
+  <Fragment slot="hero-actions">
+    <a class="btn btn-primary" href="/cv/">
+      View CV
+      <Icon name="file" size={14} />
+    </a>
+    <a class="btn btn-ghost" href="/education/">
+      Education
+      <Icon name="graduationCap" size={14} />
+    </a>
+  </Fragment>
+  <h2 class="sr-only-nw">All awards</h2>
+  <div class="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {awards.map((entry, i) => (
+      <AwardCard entry={entry} index={i} />
+    ))}
+  </div>
+</Page>

@@ -1,0 +1,1977 @@
+@import 'tailwindcss';
+@import './fonts.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Theme-toggle icon: light/dark/system, driven by [data-theme-pref] on <html>
+   rather than the resolved [data-theme] so the sun-moon icon shows even
+   while the resolved theme is light or dark. */
+[data-theme-icon] {
+  display: none;
+}
+:root[data-theme-pref='light'] [data-theme-icon='light'],
+:root[data-theme-pref='dark'] [data-theme-icon='dark'],
+:root[data-theme-pref='system'] [data-theme-icon='system'] {
+  display: inline-flex;
+}
+
+/* ============================================================================
+   Palette. Every semantic color is a runtime custom property so the theme
+   toggle can swap the whole system by flipping one attribute on <html>.
+   Dark is the default; :root[data-theme='light'] overrides the same names.
+   ========================================================================= */
+:root {
+  /* Matte fills for buttons, tags and controls: a flat grey step off the
+     surface, in whichever theme is active. */
+  --c-matte: color-mix(in oklab, var(--c-ink) 12%, var(--c-card));
+  --c-matte-hover: color-mix(in oklab, var(--c-ink) 20%, var(--c-card));
+}
+:root,
+:root[data-theme='dark'] {
+  --c-bg: #191919;
+  --c-bg-deep: #151515;
+  --c-surface: #202020;
+  --c-card: #252525;
+  --c-raised: #2b2b2b;
+  --c-line: #333333;
+  --c-line-strong: #454545;
+  --c-control-border: #7a7a7a;
+  --c-ink: #ebebea;
+  --c-dim: #a8a7a3;
+  --c-faint: #96958f;
+
+  --c-accent: #0072e3;
+  --c-accent-ink: #6ba4ff;
+  --c-accent-contrast: #ffffff;
+  --c-btn2: #2997ff;
+  --c-btn2-hover: #0076df;
+  --c-btn2-active: #006edb;
+  --c-on-light: #191919;
+  /* Notion's accent set (notion.com tatami tokens), text-legible steps for
+     this theme. Blue stays the primary (--c-accent). */
+  --c-red: #ff6b78;
+  --c-ember: var(--c-red);
+  --c-yellow: #ffb110;
+  --c-yellow-ink: #ffc95e;
+  --c-teal: #5fc7c2;
+  --c-pink: #ff83dd;
+  --c-moss: #68ce7e;
+  --logo-red: #ff6b78;
+  --logo-blue: #5aa0ff;
+  --logo-yellow: #ffc21a;
+  --c-violet: #c28df6;
+
+  --c-glow: color-mix(in oklab, var(--c-accent) 26%, transparent);
+  --c-sheen: rgb(255 255 255 / 0.04);
+  --grid-line: rgb(255 255 255 / 0.045);
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --c-bg: #ffffff;
+  --c-bg-deep: #fafafa;
+  --c-surface: #f7f7f7;
+  --c-card: #ffffff;
+  --c-raised: #f1f1f1;
+  --c-line: #e9e9e7;
+  --c-line-strong: #d3d2ce;
+  --c-control-border: #7a7974;
+  --c-ink: #37352f;
+  --c-dim: #5f5e5a;
+  --c-faint: #6b6a65;
+
+  --c-accent: #0072e3;
+  --c-accent-ink: #0a54ba;
+  --c-accent-contrast: #ffffff;
+  --c-btn2: #0066cc;
+  --c-btn2-hover: #0076df;
+  --c-btn2-active: #006edb;
+  --c-on-light: #191919;
+  --c-red: #b8142d;
+  --c-ember: var(--c-red);
+  --c-yellow: #ffb110;
+  --c-yellow-ink: #7a5000;
+  --c-teal: #126764;
+  --c-pink: #9d2472;
+  --c-moss: #0f6220;
+  --logo-red: #e5484d;
+  --logo-blue: #2383e2;
+  --logo-yellow: #f5b100;
+  --c-violet: #7237ae;
+
+  --c-glow: color-mix(in oklab, var(--c-accent) 16%, transparent);
+  --c-sheen: rgb(15 20 30 / 0.02);
+  --grid-line: rgb(20 25 40 / 0.045);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-bg-deep: var(--c-bg-deep);
+  --color-surface: var(--c-surface);
+  --color-raised: var(--c-raised);
+  --color-card: var(--c-card);
+  --color-matte-hover: var(--c-matte-hover);
+  --color-matte: var(--c-matte);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-control: var(--c-control-border);
+  --color-ink: var(--c-ink);
+  --color-dim: var(--c-dim);
+  --color-faint: var(--c-faint);
+  --color-on-light: var(--c-on-light);
+  --color-accent: var(--c-accent);
+  --color-accent-ink: var(--c-accent-ink);
+  --color-accent-contrast: var(--c-accent-contrast);
+  --color-red: var(--c-red);
+  --color-ember: var(--c-ember);
+  --color-yellow: var(--c-yellow);
+  --color-teal: var(--c-teal);
+  --color-pink: var(--c-pink);
+  --color-moss: var(--c-moss);
+  --color-violet: var(--c-violet);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Named steps for the micro-type cluster that used to ship as one-off
+     arbitrary values (text-micro etc.) — see #138. */
+  --text-micro: 0.68rem;
+  --text-2xs: 0.7rem;
+  --text-caption: 0.72rem;
+  --text-body-lg: 0.95rem;
+  --text-small: 0.82rem;
+  --text-lead: 1.05rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ============================================================================
+   Base
+   ========================================================================= */
+@layer base {
+  * {
+    border-color: var(--c-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Reserve the scrollbar track so opening the search dialog, which locks
+     document scrolling, does not reflow the page under it. Scoped to
+     viewports wide enough to actually show a layout scrollbar: mobile
+     Safari reserves this gutter even though its own scrollbar overlays
+     content, which pushed the whole page left and left a bigger margin on
+     the right than the left. */
+  @media (min-width: 1024px) {
+    html {
+      scrollbar-gutter: stable;
+    }
+  }
+
+  body {
+    background-color: var(--c-bg);
+    color: var(--c-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    font-feature-settings: 'ss03' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    /* clip, not hidden: overflow-x: hidden turns body into a scroll
+       container and breaks position: sticky for descendants (e.g. the
+       article TOC) in Chrome/Firefox. clip avoids that. */
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* iOS Safari zooms the whole page on focus when a form control's
+     font-size resolves under 16px; text-body-lg (0.95rem, used on the
+     contact form) sits just below that. A plain element selector here
+     can't win: Tailwind puts every utility (text-body-lg included) in
+     `@layer utilities`, which outranks `@layer base` regardless of
+     specificity (see the footer-ink note in Footer.astro for the same
+     gotcha), so text-body-lg's own font-size wins over this every time
+     without `!important`. */
+  input,
+  textarea,
+  select {
+    font-size: max(1rem, var(--text-body-lg)) !important;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--c-accent) 35%, transparent);
+    color: var(--c-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--c-line);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ============================================================================
+   Components
+   ========================================================================= */
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .shell-narrow {
+    width: 100%;
+    max-width: 46rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .shell-body {
+    width: 100%;
+    max-width: 58rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .shell-body {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* --- eyebrow / kicker --- */
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--tint, var(--c-accent-ink));
+    background: color-mix(in oklab, var(--tint, var(--c-accent-ink)) 12%, var(--c-surface));
+  }
+  /* --- display headings --- */
+  .display-1 {
+    font-size: clamp(2.4rem, 1.3rem + 4.4vw, 4.4rem);
+  }
+  .display-2 {
+    font-size: clamp(2.2rem, 1.3rem + 3.4vw, 4rem);
+  }
+
+  /* --- section titles --- */
+  .section-title {
+    font-size: clamp(1.85rem, 1.2rem + 2.2vw, 3rem);
+    margin-top: 0.6rem;
+  }
+
+  .lede {
+    color: var(--c-dim);
+    font-size: var(--text-lead);
+    max-width: 46rem;
+  }
+
+  /* --- page hero ---
+     The theme-following band that opens every inner page: breadcrumbs, kicker,
+     large title, intro and actions on the left, an optional frosted panel on
+     the right. Collapses to one column below 52rem. */
+  .page-hero {
+    background: var(--c-bg);
+    color: var(--c-ink);
+  }
+  .page-hero-inner {
+    position: relative;
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    padding-block: 2.75rem 3rem;
+  }
+  .page-hero-compact .page-hero-inner {
+    padding-block: 2.25rem 2.5rem;
+  }
+  .page-hero-copy {
+    min-width: 0;
+  }
+  .page-hero-copy > nav {
+    display: flex;
+  }
+  .page-hero-kicker {
+    width: fit-content;
+    margin-top: 1.5rem;
+  }
+  .page-hero-title {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    width: fit-content;
+    max-width: 100%;
+    padding-bottom: 0.1em;
+  }
+  .page-hero-title-md {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+  .page-hero-lede {
+    max-width: 34rem;
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 2.2vw, 1.19rem);
+    line-height: 1.55;
+    color: var(--c-dim);
+  }
+  .page-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 51.99rem) {
+    .page-hero-actions .btn {
+      flex: 1 1 auto;
+    }
+  }
+  .hero-panel {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--c-card);
+    border: 1px solid var(--c-line);
+  }
+  /* Cover or screenshot in the hero's right column. */
+  .hero-panel,
+  .hero-media {
+    transition: box-shadow 0.18s ease-out;
+  }
+  .hero-panel:hover,
+  .hero-media:hover {
+    box-shadow: 0 0 14px 0 color-mix(in oklab, var(--c-ink) 9%, transparent);
+  }
+  .hero-media {
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--c-line);
+    background: var(--c-card);
+  }
+  .hero-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .hero-panel-title {
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--c-dim);
+  }
+  .hero-panel-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .hero-panel-stats dd {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--tint, var(--c-ink));
+  }
+  .hero-panel-stats dt {
+    margin-top: 0.4rem;
+    font-size: var(--text-small);
+    color: var(--c-dim);
+  }
+  .hero-panel-stats > div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  @media (min-width: 52rem) {
+    .page-hero-inner {
+      padding-block: 4.5rem 5rem;
+    }
+    .page-hero-compact .page-hero-inner {
+      padding-block: 3.5rem 3.75rem;
+    }
+    .page-hero-inner.has-aside {
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 3rem;
+    }
+    .hero-panel {
+      padding: 1.5rem;
+    }
+    .hero-panel-stats dd {
+      font-size: 2.1rem;
+    }
+  }
+
+  /* --- surfaces --- */
+  .card {
+    position: relative;
+    background: var(--c-card);
+    /* The search dialog lives in the top layer, where the UA sets
+       `color: canvastext`; naming the token here keeps a card readable
+       wherever it renders. */
+    color: var(--c-ink);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-md);
+    transition: box-shadow 0.18s ease-out;
+  }
+  .card-hover:hover {
+    box-shadow: 0 0 14px 0 color-mix(in oklab, var(--c-ink) 9%, transparent);
+  }
+  /* A card washed with its own color, set through --tint-base. */
+  .card-tint {
+    background: color-mix(in oklab, var(--tint-base) 7%, var(--c-card));
+    transition:
+      box-shadow 0.18s ease-out,
+      background-color 0.2s var(--ease-out-soft);
+  }
+  .card-tint:hover {
+    background: color-mix(in oklab, var(--tint-base) 14%, var(--c-card));
+  }
+
+  /* --- buttons --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.68rem 1.15rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background-color 0.25s var(--ease-out-soft),
+      border-color 0.25s var(--ease-out-soft),
+      color 0.25s var(--ease-out-soft),
+      transform 0.25s var(--ease-out-soft),
+      box-shadow 0.25s var(--ease-out-soft);
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn svg {
+    width: 1.05em;
+    height: 1.05em;
+    flex: none;
+  }
+
+  .btn-primary {
+    background: var(--c-accent);
+    color: var(--c-accent-contrast);
+  }
+  .btn-primary:hover {
+    background: color-mix(in oklab, var(--c-accent) 86%, black);
+  }
+
+  .btn-ghost {
+    color: var(--c-ink);
+    background: var(--c-matte);
+  }
+  .btn-ghost:hover {
+    background: var(--c-matte-hover);
+  }
+
+  /* Share / copy buttons: same wash and hover as .chip-accent (the DOI chip). */
+  .btn-wash {
+    background: color-mix(in oklab, var(--c-accent) 16%, var(--c-surface));
+    color: var(--c-accent-ink);
+    transition: background-color 0.2s;
+  }
+  .btn-wash:hover {
+    background: color-mix(in oklab, var(--c-accent) 28%, var(--c-surface));
+  }
+
+  /* Secondary blue button: the hero's second button, also used for "see all"
+     links. A muted blue wash with blue text, deepening on hover; the primary
+     button beside it stays solid blue. */
+  .btn-outline,
+  .page-hero-actions .btn-ghost,
+  .hero-btn.btn-ghost {
+    background: color-mix(in oklab, var(--c-accent) 16%, var(--c-surface));
+    color: var(--c-accent-ink);
+  }
+  .btn-outline:hover,
+  .page-hero-actions .btn-ghost:hover,
+  .hero-btn.btn-ghost:hover {
+    background: color-mix(in oklab, var(--c-accent) 28%, var(--c-surface));
+  }
+  .btn-outline:active,
+  .page-hero-actions .btn-ghost:active,
+  .hero-btn.btn-ghost:active {
+    background: color-mix(in oklab, var(--c-accent) 34%, var(--c-surface));
+  }
+
+  /* "See all" link in its section's color: set --tint with a .tint-<color>
+     class (src/lib/tint.ts maps sections to colors). */
+  .btn-outline.btn-tint {
+    background: color-mix(in oklab, var(--tint) 16%, var(--c-surface));
+    color: var(--tint);
+  }
+  .btn-outline.btn-tint:hover {
+    background: color-mix(in oklab, var(--tint) 28%, var(--c-surface));
+  }
+  .btn-outline.btn-tint:active {
+    background: color-mix(in oklab, var(--tint) 34%, var(--c-surface));
+  }
+
+  .btn-sm {
+    padding: 0.42rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  /* --- carousel --- */
+  .carousel-track {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    scroll-padding-inline: 1.25rem;
+  }
+  .carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 48rem) {
+    .carousel-track {
+      scroll-padding-inline: 2rem;
+    }
+  }
+
+  .popup-plus.carousel-btn {
+    width: 3rem;
+    height: 3rem;
+    color: var(--c-ink);
+  }
+  .popup-plus.carousel-btn:hover:not(:disabled) {
+    background: var(--c-matte-hover);
+  }
+  .popup-plus.carousel-btn:disabled {
+    color: var(--c-faint);
+    cursor: default;
+    opacity: 0.5;
+  }
+  .carousel-chev {
+    display: grid;
+  }
+  .carousel-chev-prev {
+    transform: rotate(90deg);
+  }
+  .carousel-chev-next {
+    transform: rotate(-90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* --- chips --- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: var(--c-matte);
+    color: var(--c-dim);
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .chip-link {
+    border-radius: var(--radius-sm);
+    background: var(--c-matte);
+    padding: 0.25rem 0.625rem;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .chip-link:hover {
+    background: var(--c-matte-hover);
+    color: var(--c-ink);
+  }
+  .card-badge {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.625rem 1.25rem;
+    color: var(--c-on-light);
+    font-size: var(--text-body-lg);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+  @media (min-width: 640px) {
+    .card-badge {
+      bottom: 1rem;
+      left: 1rem;
+    }
+  }
+  /* Link / action chips (DOI, PDF, Altmetric...): a blue wash on the surface.
+     Informational chips stay on plain .chip. */
+  .chip-accent {
+    background: color-mix(in oklab, var(--c-accent) 16%, var(--c-surface));
+    color: var(--c-accent-ink);
+  }
+  a.chip-accent {
+    transition: background-color 0.2s;
+  }
+  a.chip-accent:hover {
+    background: color-mix(in oklab, var(--c-accent) 28%, var(--c-surface));
+  }
+  /* Notion-style tinted tags and icon tiles: a wash of the color on the
+     surface, text/icon in the theme's legible step. Pair with .chip. */
+  :is(
+    .chip-blue,
+    .chip-red,
+    .chip-yellow,
+    .chip-green,
+    .chip-purple,
+    .chip-teal,
+    .chip-pink,
+    .tile-blue,
+    .tile-red,
+    .tile-yellow,
+    .tile-green,
+    .tile-purple,
+    .tile-teal,
+    .tile-pink
+  ) {
+    background: color-mix(in oklab, var(--tint) 16%, var(--tint-surface, var(--c-surface)));
+    color: var(--tint);
+  }
+  a:is(.chip-blue, .chip-red, .chip-yellow, .chip-green, .chip-purple, .chip-teal, .chip-pink) {
+    transition: background-color 0.2s;
+  }
+  a:is(
+      .chip-blue,
+      .chip-red,
+      .chip-yellow,
+      .chip-green,
+      .chip-purple,
+      .chip-teal,
+      .chip-pink
+    ):hover {
+    background: color-mix(in oklab, var(--tint) 28%, var(--tint-surface, var(--c-surface)));
+    color: var(--tint);
+  }
+  .chip-blue,
+  .tile-blue,
+  .pill-blue {
+    --tint: var(--c-accent-ink);
+  }
+  .chip-red,
+  .tile-red,
+  .pill-red {
+    --tint: var(--c-red);
+  }
+  .chip-yellow,
+  .tile-yellow,
+  .pill-yellow {
+    --tint: var(--c-yellow);
+  }
+  .chip-green,
+  .tile-green,
+  .pill-green {
+    --tint: var(--c-moss);
+  }
+  .chip-purple,
+  .tile-purple,
+  .pill-purple {
+    --tint: var(--c-violet);
+  }
+  .chip-teal,
+  .tile-teal,
+  .pill-teal {
+    --tint: var(--c-teal);
+  }
+  .chip-pink,
+  .tile-pink,
+  .pill-pink {
+    --tint: var(--c-pink);
+  }
+  /* Yellow text has no legible step on a light surface; chip text takes the
+     theme's darker yellow ink while tile icons stay Notion yellow. */
+  .chip-yellow,
+  a.chip-yellow:hover {
+    color: var(--c-yellow-ink);
+  }
+
+  /* Round icon tile with the same blue wash as .chip-accent. */
+  .tile-accent {
+    background: color-mix(in oklab, var(--c-accent) 16%, var(--c-surface));
+    color: var(--c-accent-ink);
+  }
+
+  /* Section color for kickers, "see all" buttons and hero panels: sets --tint. */
+  .tint-blue {
+    --tint: var(--c-accent-ink);
+  }
+  .tint-green {
+    --tint: var(--c-moss);
+  }
+  .tint-yellow {
+    --tint: var(--c-yellow-ink);
+  }
+  .tint-pink {
+    --tint: var(--c-pink);
+  }
+  .tint-teal {
+    --tint: var(--c-teal);
+  }
+  .tint-red {
+    --tint: var(--c-red);
+  }
+  .tint-purple {
+    --tint: var(--c-violet);
+  }
+  /* Homepage stat strip tile: a plain card surface. */
+  .stat-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    min-width: 0;
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    color: var(--c-ink);
+    background: var(--c-card);
+    border: 1px solid var(--c-line);
+  }
+  @media (min-width: 768px) {
+    .stat-tile {
+      padding: 1.5rem;
+    }
+  }
+  /* Homepage contact card. */
+  .cta-card {
+    padding: clamp(2rem, 6vw, 4.5rem) 1.5rem;
+  }
+  .cta-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--c-moss);
+  }
+  .cta-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--c-moss);
+    animation: cta-pulse 2s ease-out infinite;
+  }
+  @keyframes cta-pulse {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--c-moss) 55%, transparent);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 0.5rem transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-dot {
+      animation: none;
+    }
+  }
+  /* The Altmetric donut in a citation chip is a small vendor-served image
+     sized to sit on the chip's text baseline. */
+  .badge-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chip img {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* --- filter pills --- */
+  .pill {
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: var(--c-matte);
+    color: var(--c-dim);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.22s var(--ease-out-soft);
+  }
+  @media (max-width: 767px) {
+    .pill-row {
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      margin-inline: -1.25rem;
+      padding-inline: 1.25rem;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .pill-row::-webkit-scrollbar {
+      display: none;
+    }
+    .pill-row > * {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+  }
+  .pill:hover {
+    color: var(--c-ink);
+    background: var(--c-matte-hover);
+  }
+  .pill[aria-pressed='true'],
+  .pill[aria-selected='true'] {
+    background: var(--c-accent);
+    color: var(--c-accent-contrast);
+  }
+
+  /* Category filter pills take the same color as that category's chips; the
+     selected pill is filled with the color. */
+  .pill:is(.pill-blue, .pill-red, .pill-yellow, .pill-green, .pill-purple, .pill-teal, .pill-pink) {
+    background: color-mix(in oklab, var(--tint) 16%, var(--tint-surface, var(--c-surface)));
+    color: var(--tint);
+  }
+  .pill:is(
+      .pill-blue,
+      .pill-red,
+      .pill-yellow,
+      .pill-green,
+      .pill-purple,
+      .pill-teal,
+      .pill-pink
+    ):hover {
+    background: color-mix(in oklab, var(--tint) 28%, var(--tint-surface, var(--c-surface)));
+    color: var(--tint);
+  }
+  .pill.pill-yellow,
+  .pill.pill-yellow:hover {
+    color: var(--c-yellow-ink);
+  }
+  .pill:is(
+      .pill-blue,
+      .pill-red,
+      .pill-yellow,
+      .pill-green,
+      .pill-purple,
+      .pill-teal,
+      .pill-pink
+    ):is([aria-pressed='true'], [aria-selected='true']) {
+    background: var(--tint);
+    color: var(--c-on-light);
+    font-weight: 600;
+  }
+  /* The light theme's tints are dark inks, so a filled pill takes white text;
+     yellow stays bright and keeps dark text. */
+  :root[data-theme='light']
+    .pill:is(.pill-blue, .pill-red, .pill-green, .pill-purple, .pill-teal, .pill-pink):is(
+      [aria-pressed='true'],
+      [aria-selected='true']
+    ) {
+    color: var(--c-accent-contrast);
+  }
+  :root[data-theme='light'] .pill.pill-yellow:is([aria-pressed='true'], [aria-selected='true']) {
+    background: var(--c-yellow-ink);
+    color: var(--c-accent-contrast);
+  }
+
+  /* --- prose --- */
+  .prose-nw {
+    color: var(--c-ink);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    overflow-wrap: break-word;
+  }
+  .prose-nw > * + * {
+    margin-top: 1.15em;
+  }
+  .prose-nw h2 {
+    font-size: 1.65rem;
+    margin-top: 2.4em;
+    margin-bottom: 0.15em;
+    scroll-margin-top: 6rem;
+  }
+  .prose-nw h3 {
+    font-size: 1.25rem;
+    margin-top: 1.9em;
+    margin-bottom: 0.1em;
+    scroll-margin-top: 6rem;
+  }
+  .prose-nw h4 {
+    font-size: var(--text-lead);
+    margin-top: 1.6em;
+  }
+  .prose-nw a:not(.btn) {
+    color: var(--c-accent-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: color-mix(in oklab, var(--c-accent) 45%, transparent);
+    transition: text-decoration-color 0.2s;
+  }
+  .prose-nw a:not(.btn):hover {
+    text-decoration-color: var(--c-accent);
+  }
+  .prose-nw ul,
+  .prose-nw ol {
+    padding-left: 1.3em;
+  }
+  .prose-nw ul {
+    list-style: disc;
+  }
+  .prose-nw ol {
+    list-style: decimal;
+  }
+  .prose-nw li + li {
+    margin-top: 0.4em;
+  }
+  .prose-nw li::marker {
+    color: var(--c-faint);
+  }
+  .prose-nw strong {
+    font-weight: 650;
+    color: var(--c-ink);
+  }
+  .prose-nw em {
+    font-family: var(--font-display);
+    font-style: italic;
+  }
+  .prose-nw img {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--c-line);
+    width: 100%;
+  }
+  /* Hex logos set beside a package heading in the R-packages post. */
+  .prose-nw .pkg-logo {
+    float: right;
+    width: 76px;
+    height: auto;
+    margin: 0 0 0.75rem 1.25rem;
+    border: 0;
+  }
+
+  .prose-nw figure > figcaption,
+  .prose-nw img + em {
+    color: var(--c-faint);
+    font-size: 0.85rem;
+  }
+  .prose-nw code:not(pre code) {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-xs);
+    background: var(--c-raised);
+    border: 1px solid var(--c-line);
+    color: var(--c-accent-ink);
+  }
+  .prose-nw pre {
+    padding: 1.15rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--c-line);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    background: var(--c-surface) !important;
+  }
+  .prose-nw pre code {
+    font-family: var(--font-mono);
+  }
+  .prose-nw blockquote {
+    border-left: 2px solid var(--c-accent);
+    padding: 0.1rem 0 0.1rem 1.15rem;
+    color: var(--c-dim);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+  }
+  .prose-nw blockquote p:first-child strong:only-child {
+    color: var(--c-accent-ink);
+  }
+  /* GitHub-style [!NOTE]/[!TIP]/etc alerts, from remark-github-blockquote-alert. */
+  .prose-nw .markdown-alert {
+    border-left: 2px solid var(--alert-color, var(--c-accent));
+    padding: 0.6rem 0 0.6rem 1.15rem;
+    margin: 1.5rem 0;
+  }
+  .prose-nw .markdown-alert-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--alert-color, var(--c-accent-ink));
+  }
+  .prose-nw .markdown-alert-title .octicon {
+    fill: currentColor;
+  }
+  .prose-nw .markdown-alert-tip {
+    --alert-color: var(--c-moss);
+  }
+  .prose-nw .markdown-alert-important {
+    --alert-color: var(--c-violet);
+  }
+  .prose-nw .markdown-alert-warning,
+  .prose-nw .markdown-alert-caution {
+    --alert-color: var(--c-ember);
+  }
+  .prose-nw table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    display: block;
+    overflow-x: auto;
+  }
+  .prose-nw th,
+  .prose-nw td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--c-line);
+    text-align: left;
+  }
+  .prose-nw th {
+    color: var(--c-dim);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Shiki: swap themes with the site theme rather than the OS. */
+  :root[data-theme='dark'] .astro-code,
+  :root[data-theme='dark'] .astro-code span {
+    color: var(--shiki-dark) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
+
+  /* The copy button reveals on hover, which a touch device never does. */
+  @media (hover: none) {
+    [data-code-block] > button {
+      opacity: 1;
+    }
+  }
+
+  /* --- tech tiles ---
+     The icons are single-color SVGs drawn as a mask, so they take the text
+     color in either theme with no filter. */
+  .tech-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    min-height: 6.25rem;
+    padding: 1rem 0.25rem 0.85rem;
+    text-align: center;
+  }
+  .tech-ic {
+    display: block;
+    width: 1.65rem;
+    height: 1.65rem;
+    background: var(--c-ink);
+    opacity: 0.85;
+    transition: opacity 0.3s var(--ease-out-soft);
+    mask: var(--tech-ic) center / contain no-repeat;
+    -webkit-mask: var(--tech-ic) center / contain no-repeat;
+  }
+  .tech-tile:hover .tech-ic {
+    opacity: 1;
+  }
+  .tech-tile-cat {
+    margin-top: -0.3rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-faint);
+  }
+  .tech-tile-more {
+    position: relative;
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 0 0 1px var(--c-line);
+    transition: background-color 0.3s var(--ease-out-soft);
+  }
+  .tech-tile-more:hover {
+    background: var(--c-matte);
+  }
+  @media (max-width: 767px) {
+    .tech-tile {
+      min-height: 5.6rem;
+      gap: 0.55rem;
+    }
+    .tech-ic {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    .tech-tile .text-sm {
+      font-size: 0.72rem;
+    }
+    .tech-tile-cat {
+      display: none;
+    }
+  }
+  @media (min-width: 768px) {
+    .tech-tile {
+      min-height: 7.5rem;
+      padding-top: 1.35rem;
+    }
+    .tech-ic {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+  }
+
+  /* --- affiliations ---
+     Logos are drawn as masks in the text color. Wide screens show every card;
+     narrow ones swipe, with a fade on the trailing edge. Nothing moves on its own. */
+  .affil-track {
+    display: flex;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.15rem 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .affil-track::-webkit-scrollbar {
+    display: none;
+  }
+  .affil-card {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 9rem;
+    padding: 1.15rem 0.75rem;
+    scroll-snap-align: start;
+    transition: background-color 0.3s var(--ease-out-soft);
+  }
+  .affil-card:hover,
+  .affil-card:focus-visible {
+    background: var(--c-matte);
+  }
+  .affil-logo {
+    display: block;
+    width: 100%;
+    height: 2rem;
+    background: var(--c-ink);
+    opacity: 0.6;
+    transition: opacity 0.3s var(--ease-out-soft);
+    mask: var(--affil-logo) center / contain no-repeat;
+    -webkit-mask: var(--affil-logo) center / contain no-repeat;
+  }
+  /* Black-on-alpha seals: masked so dark mode needs no filter (iOS Safari
+     renders filter:invert on these as black). */
+  .seal {
+    display: block;
+    flex: none;
+    background: var(--c-ink);
+    mask: var(--seal) center / contain no-repeat;
+    -webkit-mask: var(--seal) center / contain no-repeat;
+  }
+  .affil-card:hover .affil-logo,
+  .affil-card:focus-visible .affil-logo {
+    opacity: 1;
+  }
+  .affil-fade {
+    background: linear-gradient(90deg, transparent, var(--c-bg));
+  }
+  @media (min-width: 64rem) {
+    .affil-track {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      overflow: visible;
+    }
+    .affil-card {
+      width: auto;
+      padding-block: 1.35rem;
+    }
+    .affil-logo {
+      height: 2.25rem;
+    }
+    .affil-fade,
+    .affil-hint {
+      display: none;
+    }
+  }
+
+  /* FAQ accordion: the chevron flips about its horizontal axis (toward or away
+     from the viewer) rather than rotating in the plane. */
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-chevron {
+    display: grid;
+    place-items: center;
+    perspective: 120px;
+    color: var(--c-dim);
+  }
+  .faq-chevron svg {
+    transition: transform 0.4s var(--ease-out-soft);
+  }
+  .faq[open] .faq-chevron svg {
+    transform: rotateX(180deg);
+  }
+  /* Animate height on open and close (name="faq" makes opening one close the
+     others, so both transitions run together). No JS, no per-frame measuring. */
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  .faq::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 0.35s var(--ease-out-soft),
+      content-visibility 0.35s allow-discrete;
+  }
+  .faq[open]::details-content {
+    block-size: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq::details-content,
+    .faq-chevron svg {
+      transition: none;
+    }
+  }
+
+  /* --- icon buttons ---
+     Square with generous corner rounding rather than a circle: at 36-40px a
+     full pill reads as a bubble around the glyph, and the tile keeps the hover
+     fill aligned with the rest of the UI. */
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--c-ink);
+    transition:
+      background-color 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft);
+  }
+  .icon-btn:hover {
+    background: var(--c-raised);
+    color: var(--c-accent-ink);
+  }
+
+  /* Nav items carry the same fill as the icon buttons beside them: the page
+     you are on is the one wearing the tile, and hover previews it. */
+  .nav-link {
+    color: var(--c-dim);
+    transition:
+      background-color 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft);
+  }
+  .nav-link:hover {
+    background: color-mix(in oklab, var(--c-raised) 70%, transparent);
+    color: var(--c-ink);
+  }
+  /* A step past the hover fill, because `--c-raised` on its own is only a
+     couple of points off the page ground and the current page has to be
+     readable at a glance. */
+  .nav-link-active,
+  .nav-link-active:hover {
+    background: color-mix(in oklab, var(--c-accent) 12%, var(--c-raised));
+    color: var(--c-accent-ink);
+  }
+
+  .icon-tile {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: var(--c-matte);
+    color: var(--c-dim);
+    transition:
+      background-color 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft);
+  }
+  .icon-tile:hover {
+    background: var(--c-matte-hover);
+    color: var(--c-ink);
+  }
+
+  /* Same hit area and hover lift, with no circle around the glyph. */
+  .icon-tile.icon-bare,
+  .icon-tile.icon-bare:hover {
+    background: none;
+  }
+  .icon-tile.icon-bare:hover {
+    color: var(--c-accent-ink);
+  }
+
+  /* --- popup card ---
+     Apple-style detail card: opened from a "+" on a card, blurs the page. */
+  .popup {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    padding: 1rem;
+    overflow-y: auto;
+    border: 0;
+    background: transparent;
+    color: var(--c-ink);
+  }
+  .popup[open] {
+    display: flex;
+  }
+  /* The dialog is a full-viewport scroller, so a tall card grows past the
+     fold and scrolls with one scrollbar at the window edge, not inside it. */
+  html:has(.popup[open]) {
+    overflow: hidden;
+  }
+  .popup-card {
+    position: relative;
+    margin: auto;
+    width: min(40rem, 100%);
+    padding: clamp(1.5rem, 5vw, 3rem);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-card);
+  }
+  .popup::backdrop {
+    background: rgb(0 0 0 / 0.55);
+  }
+  .popup-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  .popup-close,
+  .popup-plus {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--c-matte);
+    color: var(--c-dim);
+    cursor: pointer;
+    transition:
+      background-color 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft);
+  }
+  .popup-close:hover,
+  .group:hover .popup-plus {
+    background: var(--c-matte-hover);
+    color: var(--c-ink);
+  }
+  .popup[open] .popup-card {
+    animation: popup-in 0.28s var(--ease-out-soft);
+  }
+  @keyframes popup-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .popup[open] .popup-card {
+      animation: none;
+    }
+  }
+
+  /* --- share dialog ---
+     The Share button opens this as a modal: every target sits in one grid and
+     the page behind it blurs out under the backdrop. */
+  .share-dialog {
+    /* Tailwind's reset zeroes the margin the UA uses to centre a modal, so it
+       is set back here. */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(28rem, calc(100vw - 2rem));
+    /* Not auto: with both insets at 0 an auto height stretches to the viewport
+       and the auto margins have nothing left to centre. */
+    height: fit-content;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-card);
+    color: var(--c-ink);
+  }
+  .share-dialog::backdrop {
+    background: rgb(0 0 0 / 0.55);
+  }
+  .share-dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .share-dialog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  /* Below this width the dialog's own min(28rem, 100vw - 2rem) sizing plus
+     the 7.5rem auto-fill floor can collapse to a single column; force two
+     so a narrow phone (e.g. iPhone 13 mini at 375px) still gets a grid
+     instead of one tall list. */
+  @media (max-width: 480px) {
+    .share-dialog-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .share-target {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    color: var(--c-dim);
+    font-size: 0.85rem;
+    transition:
+      border-color 0.2s var(--ease-out-soft),
+      background-color 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft);
+  }
+  .share-target:hover {
+    border-color: var(--brand, var(--c-accent));
+    background: color-mix(in oklab, var(--brand, var(--c-accent)) 12%, transparent);
+    color: var(--brand, var(--c-accent-ink));
+  }
+
+  .share-target[data-brand='x'],
+  .share-target[data-brand='threads'] {
+    --brand: var(--c-ink);
+  }
+  .share-target[data-brand='linkedin'] {
+    --brand: #0a66c2;
+  }
+  .share-target[data-brand='bluesky'] {
+    --brand: #1185fe;
+  }
+  .share-target[data-brand='facebook'] {
+    --brand: #1877f2;
+  }
+  .share-target[data-brand='reddit'] {
+    --brand: #ff4500;
+  }
+  .share-target[data-brand='pinterest'] {
+    --brand: #e60023;
+  }
+  .share-target[data-brand='mastodon'] {
+    --brand: #6364ff;
+  }
+  .share-target[data-brand='whatsapp'] {
+    --brand: #25d366;
+  }
+  .share-target[data-brand='telegram'] {
+    --brand: #26a5e4;
+  }
+  .share-target[data-brand='tumblr'] {
+    --brand: #529ecc;
+  }
+
+  /* --- back to top ---
+     Shown only while the reader is scrolling up past the fold; scrolling
+     down hides it again, tracked in src/scripts/ui.ts. */
+  .back-to-top {
+    position: fixed;
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+    z-index: 40; /* below the header (z-50), so the open mobile menu covers it */
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: var(--c-matte);
+    color: var(--c-dim);
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 0.5rem;
+    transition:
+      opacity 0.22s var(--ease-out-soft),
+      translate 0.22s var(--ease-out-soft),
+      visibility 0s linear 0.22s,
+      background-color 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft);
+  }
+  .back-to-top[data-show] {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    transition-delay: 0s;
+  }
+  .back-to-top:hover {
+    background: var(--c-matte-hover);
+    color: var(--c-ink);
+  }
+  /* Blog posts: the ToC button takes this exact corner on mobile. */
+  @media (max-width: 1023.98px) {
+    body:has([data-toc-fab]) .back-to-top {
+      display: none;
+    }
+  }
+
+  /* --- tooltips ---
+     One floating element, positioned by src/scripts/ui.ts, so a tooltip is
+     never clipped by an ancestor's overflow. */
+  .nw-tip {
+    position: fixed;
+    z-index: 120;
+    max-width: 20rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--c-line-strong);
+    background: color-mix(in oklab, var(--c-surface) 92%, var(--c-bg));
+    color: var(--c-ink);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(3px);
+    transition:
+      opacity 0.16s var(--ease-out-soft),
+      transform 0.16s var(--ease-out-soft);
+  }
+  .nw-tip[data-show] {
+    opacity: 1;
+    transform: none;
+  }
+  .nw-tip b {
+    display: block;
+    font-weight: 600;
+  }
+  .nw-tip span {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--c-dim);
+  }
+
+  /* --- heading permalinks --- */
+  .prose-nw :is(h2, h3, h4) {
+    position: relative;
+  }
+  .heading-anchor {
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-right: 0.2rem;
+    border-radius: var(--radius-sm);
+    color: var(--c-faint);
+    opacity: 0;
+    transition:
+      opacity 0.18s var(--ease-out-soft),
+      color 0.18s var(--ease-out-soft),
+      background-color 0.18s var(--ease-out-soft);
+  }
+  .prose-nw :is(h2, h3, h4):hover .heading-anchor,
+  .heading-anchor:focus-visible {
+    opacity: 1;
+  }
+  .heading-anchor:hover {
+    background: var(--c-raised);
+    color: var(--c-accent-ink);
+  }
+  /* Under the measure there is no gutter to hang it in. */
+  @media (max-width: 60rem) {
+    .heading-anchor {
+      position: static;
+      translate: none;
+      display: inline-grid;
+      vertical-align: middle;
+      margin-left: 0.35rem;
+      opacity: 1;
+    }
+  }
+
+  /* --- code blocks --- */
+  /* flow-root: the <pre> is a BFC and narrows beside a floated image; the
+     wrapper must too, or the button anchors to the full-width box. */
+  [data-code-block] {
+    display: flow-root;
+  }
+  .code-copy {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--c-line);
+    background: var(--c-raised);
+    color: var(--c-dim);
+    opacity: 0;
+    transition:
+      opacity 0.2s var(--ease-out-soft),
+      color 0.2s var(--ease-out-soft),
+      background-color 0.2s var(--ease-out-soft),
+      border-color 0.2s var(--ease-out-soft);
+  }
+  .code-copy:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent-ink);
+  }
+  [data-code-block]:hover .code-copy,
+  .code-copy:focus-visible {
+    opacity: 1;
+  }
+  .code-copy[data-state='copied'] {
+    opacity: 1;
+    border-color: color-mix(in oklab, var(--c-moss) 35%, var(--c-line));
+    background: color-mix(in oklab, var(--c-moss) 20%, var(--c-surface));
+    color: var(--c-moss);
+  }
+
+  /* Copy buttons (share row, share dialog, post aside): a green wash with a
+     check while src/scripts/copy.ts holds data-state="copied". */
+  [data-copy] .copied-ic,
+  [data-copy][data-state='copied'] .copy-ic {
+    display: none;
+  }
+  [data-copy][data-state='copied'] .copied-ic {
+    display: inline-block;
+  }
+  :is(.btn-wash, .icon-tile)[data-copy][data-state='copied'] {
+    background: color-mix(in oklab, var(--c-moss) 20%, var(--c-surface));
+    color: var(--c-moss);
+  }
+
+  /* --- lightbox --- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    /* minmax(0, 1fr), not 1fr: an `auto` minimum floors the stage row at the
+       image's intrinsic height, which pushes a tall picture past the bottom
+       of the screen. */
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    /* Small-viewport units so the overlay ends where the screen does, rather
+       than under a mobile browser's toolbar. */
+    height: 100dvh;
+    max-height: 100dvh;
+    /* Always a dark scrim, in either theme: a picture reads best against one,
+       and the page behind it should drop away rather than tint through. */
+    background: rgb(10 10 10 / 0.93);
+    color: #ebebea;
+    opacity: 0;
+    transition: opacity 0.24s var(--ease-out-soft);
+  }
+  .lightbox[data-show] {
+    opacity: 1;
+  }
+  /* The image is absolutely positioned inside the stage, not centred as a
+     grid item: a percentage max-height on an in-flow replaced element does
+     not resolve against a grid area in every engine, and where it fails a
+     tall picture keeps its intrinsic height and runs off the bottom of the
+     screen. Against a positioned box the percentages always resolve. */
+  .lightbox-stage {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .lightbox img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    /* The subtractions are the gutters: the picture never touches the edges
+       of the stage, the bar above it, or the caption below. */
+    max-width: calc(100% - 2.5rem);
+    max-height: calc(100% - 1.5rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--c-line);
+    transform: scale(0.97);
+    transition: transform 0.24s var(--ease-out-soft);
+  }
+  .lightbox[data-show] img {
+    transform: none;
+  }
+  .lightbox-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    color: rgb(233 236 242 / 0.7);
+    font-size: 0.85rem;
+  }
+  .lightbox .icon-tile {
+    /* Explicit ground: the default tile fill follows the page theme, so in
+       light mode it is a pale grey under this always-light glyph. */
+    background: #14171d;
+    border-color: rgb(255 255 255 / 0.18);
+    color: rgb(233 236 242 / 0.85);
+  }
+  .lightbox .icon-tile:hover {
+    border-color: rgb(255 255 255 / 0.45);
+    /* An opaque ground rather than a white wash: white-on-white is what the
+       contrast checkers see in a translucent fill, and it is the same colour
+       against the scrim either way. */
+    background: #1b1f27;
+    color: #fff;
+  }
+  .lightbox-caption {
+    /* Capped so a long caption can never crowd the picture out of the stage. */
+    max-height: 22vh;
+    overflow-y: auto;
+    padding: 1rem 1.25rem 1.75rem;
+    padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
+    text-align: center;
+    color: rgb(233 236 242 / 0.72);
+    font-size: 0.88rem;
+  }
+  /* The affordance on a zoomable image: a corner badge rather than a full
+     overlay, so the picture itself is never dimmed. */
+  .zoomable {
+    cursor: zoom-in;
+  }
+
+  /* --- search hit marks ---
+     A fuzzy hit is marked, never highlighted: exact runs take the ink and a
+     solid underline, loose character matches take a wavy one. */
+  .hit-exact {
+    color: var(--c-ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.18em;
+    text-decoration-color: var(--c-accent);
+  }
+  .hit-fuzzy {
+    color: var(--c-ink);
+    font-weight: 600;
+    text-decoration: underline wavy;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in oklab, var(--c-accent) 70%, transparent);
+  }
+  #search-results mark {
+    background: transparent;
+    color: var(--c-ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.18em;
+    text-decoration-color: var(--c-accent);
+  }
+
+  /* --- reveal on scroll ---
+     Scoped to `data-reveal="js"`, which Base.astro's pre-paint inline script
+     sets on <html>. Without the flag the hidden state never applies, so the
+     pre-JS render is the finished render: a no-JS reader sees the full grid
+     rather than a blank page, and an above-the-fold card is an LCP candidate
+     the moment its bytes land instead of once ui.ts has run. */
+  [data-reveal='js'] [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.7s var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal='js'] [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal='js'] [data-reveal] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer utilities {
+  /* Top band that runs up behind the transparent header (4rem, 4.5rem from
+     48rem up; keep in step with the h- classes on .nav-bar in Header.astro). */
+  .under-nav {
+    margin-top: -4rem;
+    padding-top: 4rem;
+  }
+  @media (min-width: 48rem) {
+    .under-nav {
+      margin-top: -4.5rem;
+      padding-top: 4.5rem;
+    }
+  }
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus {
+    transform: none;
+  }
+  .sr-only-nw {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  .balance {
+    text-wrap: balance;
+  }
+}
+
+/* ============================================================================
+   Reading mode. Unlayered on purpose: these rules have to beat the Tailwind
+   utilities on the same elements (grid, hidden/lg:block), and an @layer block
+   always loses to unlayered CSS.
+   ========================================================================= */
+[data-reading] .prose-nw {
+  font-size: 1.15rem;
+  line-height: 1.85;
+}
+[data-reading] [data-toc],
+[data-reading] [data-toc-fab],
+[data-reading] [data-share-row],
+[data-reading] [data-post-aside],
+[data-reading] [data-comments],
+[data-reading] footer[data-site-footer] {
+  display: none;
+}
+/* Without the rail the two-column grid leaves the article parked left. */
+[data-reading] [data-article-grid] {
+  display: block;
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+/* Print: the CV page has to survive Cmd-P. */
+@media print {
+  :root {
+    --c-bg: #fff;
+    --c-surface: #fff;
+    --c-card: #fff;
+    --c-ink: #14161a;
+    --c-dim: #333;
+    --c-line: #ccc;
+    /* Light theme's values — AA against the white ground this block forces,
+       unlike dark theme's light-on-dark accent/faint colors. */
+    --c-faint: #636a78;
+    --c-accent: #0072e3;
+    --c-accent-ink: #0a54ba;
+  }
+  body {
+    background: #fff;
+    color: #14161a;
+  }
+  header[data-site-header],
+  footer[data-site-footer],
+  .nw-tip,
+  .lightbox,
+  .heading-anchor,
+  .code-copy,
+  .skip-link,
+  .no-print {
+    display: none !important;
+  }
+  a {
+    color: #14161a !important;
+    text-decoration: none !important;
+  }
+}
+
+/* Skip layout/paint of off-screen home sections until they near the viewport. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}

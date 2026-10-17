@@ -1,0 +1,64 @@
+---
+import Icon from './Icon.astro';
+import { buildShareTargets } from '../lib/share';
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+
+const targets = buildShareTargets(title, url);
+---
+
+<div
+  data-pagefind-ignore
+  data-share-row
+  class="no-print mt-14 flex flex-wrap items-center gap-2 border-t border-line pt-6"
+>
+  <button
+    type="button"
+    class="btn btn-wash btn-sm"
+    data-share-open
+    aria-haspopup="dialog"
+    data-tip="Share this page"
+  >
+    <Icon name="share" size={15} />
+    <span>Share</span>
+  </button>
+  <button
+    type="button"
+    class="btn btn-wash btn-sm ml-auto"
+    data-copy={url}
+    data-tip="Copy this page's link"
+  >
+    <Icon name="copy" size={15} class="copy-ic" />
+    <Icon name="check" size={15} class="copied-ic" />
+    <span data-copy-label>Copy link</span>
+  </button>
+
+  <dialog class="share-dialog" data-share-dialog aria-label={`Share: ${title}`}>
+    <div class="share-dialog-head">
+      <div>
+        <p class="text-xs font-medium text-faint">Share</p>
+        <p class="mt-1 line-clamp-2 text-sm text-ink">{title}</p>
+      </div>
+      <button type="button" class="icon-tile" data-share-close aria-label="Close">
+        <Icon name="close" size={16} />
+      </button>
+    </div>
+    <div class="share-dialog-grid">
+      {targets.map((s) => (
+        <a class="share-target" href={s.href} target="_blank" rel="noopener" data-brand={s.icon}>
+          <Icon name={s.icon} size={17} />
+          <span>{s.label}</span>
+          <span class="sr-only-nw"> (opens in a new tab)</span>
+        </a>
+      ))}
+    </div>
+    <button type="button" class="btn btn-wash btn-sm w-full" data-copy={url}>
+      <Icon name="copy" size={15} class="copy-ic" />
+      <Icon name="check" size={15} class="copied-ic" />
+      <span data-copy-label>Copy link</span>
+    </button>
+  </dialog>
+</div>

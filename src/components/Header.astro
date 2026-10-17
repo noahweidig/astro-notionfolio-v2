@@ -1,0 +1,523 @@
+---
+import { navGroups, navMeta, socials } from '../lib/site';
+import Icon from './Icon.astro';
+import Wordmark from './Wordmark.astro';
+import Search from './Search.astro';
+import { tintBase } from '../lib/tint';
+
+const slash = (p: string) => (p.endsWith('/') ? p : `${p}/`);
+const path = slash(Astro.url.pathname);
+const isActive = (href: string) => {
+  const target = slash(href);
+  return target === '/' ? path === '/' : path === target || path.startsWith(target);
+};
+---
+
+<header
+  data-pagefind-ignore
+  data-site-header
+  class="nav-glass fixed inset-x-0 top-0 z-50"
+  id="site-header"
+>
+  <div class="shell nav-bar relative z-10 flex h-16 items-center md:h-[4.5rem] gap-4 lg:grid lg:grid-cols-[1fr_auto_1fr]">
+    <a href="/" class="group flex min-w-0 items-center gap-2.5">
+      <Wordmark iconOnlyNarrow class="text-[1.15rem] md:text-[1.25rem]" />
+    </a>
+
+    <nav aria-label="Primary" class="mx-auto hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {navGroups.map((group) => {
+          const active = group.items.some((i) => !('external' in i) && isActive(i.href));
+          return (
+            <li class="nav-group relative">
+              <button
+                type="button"
+                data-nav-trigger
+                aria-expanded="false"
+                class:list={[
+                  'nav-link nav-trigger inline-flex items-center gap-1.5 rounded-sm px-4 py-2 font-display text-body-lg font-semibold tracking-tight xl:px-5 xl:text-base',
+                  active ? 'nav-link-active' : '',
+                ]}
+              >
+                {group.text}
+                <Icon name="nav-chevronRight" size={14} stroke-width={2.6} class="nav-chevron" />
+              </button>
+              <ul
+                class="nav-menu card absolute top-full left-1/2 z-10 hidden -translate-x-1/2 p-2.5"
+                style={`--cols:${group.items.length === 4 ? 2 : Math.min(group.items.length, 3)}`}
+              >
+                {group.items.map((item) => {
+                  const external = 'external' in item;
+                  const current = !external && isActive(item.href);
+                  return (
+                    <li>
+                      <a
+                        href={item.href}
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noopener' : undefined}
+                        aria-current={current ? 'page' : undefined}
+                        class="nav-card group/card flex h-full flex-col"
+                        style={`--tint-base:${tintBase(navMeta[item.text]!.tint)}`}
+                      >
+                        <span
+                          class={`grid h-11 w-11 place-items-center rounded-sm tile-${navMeta[item.text]!.tint}`}
+                        >
+                          <Icon name={navMeta[item.text]!.icon} size={21} />
+                        </span>
+                        <span class="mt-4 flex items-center gap-1.5 font-display text-lead font-semibold tracking-tight text-ink">
+                          {item.text}
+                          <Icon name="arrow" size={14} class="nav-card-arrow" />
+                        </span>
+                        <span class="mt-1 text-small leading-snug text-dim">{item.tip}</span>
+                        {external && <span class="sr-only-nw"> (opens in a new tab)</span>}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex shrink-0 items-center gap-1.5 lg:justify-self-end">
+      <button
+        type="button"
+        data-search-open
+        data-tip="Search — press /"
+        class="icon-btn"
+        aria-label="Search the site"
+      >
+        <Icon name="nav-search" size={21} stroke-width={1.8} />
+      </button>
+
+      <button
+        type="button"
+        data-theme-toggle
+        data-tip="Switch color theme"
+        class="icon-btn max-lg:hidden"
+        aria-label="Switch color theme"
+      >
+        <span data-theme-icon="light">
+          <Icon name="nav-sun" size={21} stroke-width={1.8} />
+        </span>
+        <span data-theme-icon="dark">
+          <Icon name="nav-moon" size={21} stroke-width={1.8} />
+        </span>
+        <span data-theme-icon="system">
+          <Icon name="nav-sunMoon" size={21} stroke-width={1.8} />
+        </span>
+      </button>
+
+      <a
+        class="btn btn-primary ml-1 hidden px-4 py-2.5 text-sm lg:inline-flex"
+        href="/contact/"
+        data-tip="Email, booking and the contact form"
+      >
+        Get in touch
+        <Icon name="arrow" size={15} />
+      </a>
+
+      <button
+        type="button"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        class="icon-btn lg:hidden"
+        aria-label="Open menu"
+      >
+        <span class="burger-open">
+          <Icon name="menu" size={22} stroke-width={1.8} />
+        </span>
+        <span class="burger-close">
+          <Icon name="close" size={22} stroke-width={1.8} />
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-nav" hidden class="mobile-nav fixed inset-0 lg:hidden">
+    <div class="mobile-scrim absolute inset-0" data-menu-scrim aria-hidden="true"></div>
+    <nav aria-label="Mobile" class="mobile-drawer absolute inset-y-0 left-0 flex flex-col">
+      <div class="flex items-center justify-between gap-2 py-3 pl-5 pr-3">
+        <a href="/">
+          <Wordmark class="text-[1.15rem]" />
+        </a>
+        <button type="button" class="icon-btn" data-menu-close aria-label="Close menu">
+          <Icon name="nav-x" size={21} stroke-width={1.8} />
+        </button>
+      </div>
+      <button type="button" data-search-open class="mobile-search" aria-label="Search the site">
+        <Icon name="nav-search" size={18} stroke-width={1.8} />
+        Search
+        <kbd>/</kbd>
+      </button>
+      <div class="min-h-0 flex-1 overflow-y-auto px-2 pb-3 pt-1">
+        {navGroups.map((group, gi) => (
+          <div class="mobile-group">
+            <button type="button" class="mobile-group-head" aria-expanded="true" data-group-toggle>
+              <Icon name="nav-chevronRight" size={14} stroke-width={2.4} />
+              {group.text}
+            </button>
+            <div class="mobile-group-body">
+              <ul>
+                {group.items.map((item) => {
+                  const external = 'external' in item;
+                  const meta = navMeta[item.text]!;
+                  return (
+                    <li>
+                      <a
+                        href={item.href}
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noopener' : undefined}
+                        aria-current={!external && isActive(item.href) ? 'page' : undefined}
+                        class="mobile-row"
+                        style={`--tint-base:${tintBase(meta.tint)}`}
+                      >
+                        <span
+                          class={`grid h-[34px] w-[34px] place-items-center rounded-sm tile-${meta.tint}`}
+                        >
+                          <Icon name={meta.icon} size={18} />
+                        </span>
+                        <span class="min-w-0">
+                          <span class="flex items-center gap-1.5 font-display text-base font-semibold tracking-tight text-ink">
+                            {item.text}
+                            {external && <Icon name="arrow" size={13} class="text-faint" />}
+                          </span>
+                          <span class="block truncate text-small text-dim">{item.tip}</span>
+                          {external && <span class="sr-only-nw"> (opens in a new tab)</span>}
+                        </span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            {gi < navGroups.length - 1 && <div class="mobile-sep" />}
+          </div>
+        ))}
+      </div>
+      <div class="mobile-foot">
+        <div class="flex items-center gap-1">
+          {socials.slice(0, 3).map((s) => (
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener"
+              class="icon-btn"
+              aria-label={`${s.label} (opens in a new tab)`}
+            >
+              <Icon name={s.icon} size={18} />
+            </a>
+          ))}
+          <button
+            type="button"
+            data-theme-toggle
+            class="icon-btn ml-auto"
+            aria-label="Switch color theme"
+          >
+            <span data-theme-icon="light">
+              <Icon name="nav-sun" size={20} stroke-width={1.8} />
+            </span>
+            <span data-theme-icon="dark">
+              <Icon name="nav-moon" size={20} stroke-width={1.8} />
+            </span>
+            <span data-theme-icon="system">
+              <Icon name="nav-sunMoon" size={20} stroke-width={1.8} />
+            </span>
+          </button>
+        </div>
+        <a class="btn btn-primary w-full" href="/contact/">
+          Get in touch
+          <Icon name="arrow" size={15} />
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+<!-- The bar is fixed (a sticky bar lags behind touch scrolling on iOS), so this holds its
+     place in the flow. Keep it in step with the h- classes on .nav-bar. -->
+<div class="h-16 md:h-[4.5rem] print:hidden" aria-hidden="true" data-pagefind-ignore></div>
+
+<Search />
+
+<style>
+  .nav-card {
+    padding: 1.1rem;
+    border-radius: var(--radius-md);
+    background: color-mix(in oklab, var(--tint-base) 7%, var(--c-card));
+    transition: background-color 0.2s var(--ease-out-soft);
+  }
+  .nav-card:hover,
+  .nav-card:focus-visible {
+    background: color-mix(in oklab, var(--tint-base) 15%, var(--c-card));
+  }
+  .nav-card[aria-current='page'] {
+    box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--tint-base) 50%, transparent);
+  }
+  :global(.nav-card-arrow) {
+    opacity: 0;
+    translate: -4px 0;
+    transition:
+      opacity 0.2s ease,
+      translate 0.2s var(--ease-out-soft);
+  }
+  .nav-card:hover :global(.nav-card-arrow),
+  .nav-card:focus-visible :global(.nav-card-arrow) {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .nav-group[data-open] > .nav-menu {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), 14.5rem);
+    gap: 0.5rem;
+    max-width: calc(100vw - 2rem);
+    animation: menu-drop 0.18s var(--ease-out-soft, ease-out) both;
+  }
+  /* The right-pointing chevron is turned to point down, and up when open. */
+  :global(.nav-chevron) {
+    rotate: 90deg;
+    transition: rotate 0.4s var(--ease-out-soft, ease);
+  }
+  .nav-group[data-open] :global(.nav-chevron),
+  .nav-trigger:hover :global(.nav-chevron) {
+    rotate: -90deg;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.nav-chevron) {
+      transition: none;
+    }
+  }
+  @keyframes menu-drop {
+    from {
+      opacity: 0;
+    }
+  }
+  /* Top-level items: no hover pill, the label just brightens. */
+  .nav-trigger:not(.nav-link-active):hover {
+    background: transparent;
+    color: var(--c-ink);
+  }
+  [data-menu-toggle][aria-expanded='false'] .burger-close,
+  [data-menu-toggle][aria-expanded='true'] .burger-open {
+    display: none;
+  }
+  .mobile-nav {
+    z-index: 20;
+    contain: strict;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+  .mobile-scrim {
+    background: color-mix(in oklab, var(--c-bg) 45%, rgb(0 0 0 / 0.55));
+  }
+  /* The menu always fills the screen, at every width it is shown. */
+  .mobile-drawer {
+    width: 100%;
+    background: var(--c-bg);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .mobile-nav:not([hidden]) .mobile-scrim {
+    animation: menu-fade 0.28s ease-out both;
+  }
+  .mobile-nav:not([hidden]) .mobile-drawer {
+    animation: drawer-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .mobile-nav[data-closing] {
+    pointer-events: none;
+  }
+  .mobile-nav[data-closing] .mobile-scrim {
+    animation: menu-fade-out 0.25s ease-in both;
+  }
+  .mobile-nav[data-closing] .mobile-drawer {
+    animation: drawer-out 0.25s ease-in both;
+  }
+  @keyframes menu-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes menu-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes drawer-in {
+    from {
+      translate: -102% 0;
+    }
+  }
+  @keyframes drawer-out {
+    to {
+      translate: -102% 0;
+    }
+  }
+  .mobile-search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.4rem 0.75rem 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklab, var(--c-ink) 6%, var(--c-bg));
+    color: var(--c-dim);
+    font-size: 0.9375rem;
+    text-align: left;
+  }
+  .mobile-search kbd {
+    margin-left: auto;
+    font: 500 0.75rem var(--font-sans);
+    color: var(--c-faint);
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius-xs);
+    padding: 1px 6px;
+  }
+  .mobile-group-head {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-faint);
+    text-align: left;
+  }
+  .mobile-group-head:hover {
+    background: color-mix(in oklab, var(--c-ink) 5%, transparent);
+    color: var(--c-dim);
+  }
+  .mobile-group-head :global(svg) {
+    transition: rotate 0.25s var(--ease-out-soft);
+  }
+  .mobile-group-head[aria-expanded='true'] :global(svg) {
+    rotate: 90deg;
+  }
+  .mobile-group-body {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.28s var(--ease-out-soft);
+  }
+  .mobile-group-body[data-closed] {
+    grid-template-rows: 0fr;
+  }
+  .mobile-group-body > ul {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .mobile-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-sm);
+  }
+  .mobile-row:hover,
+  .mobile-row:focus-visible {
+    background: color-mix(in oklab, var(--c-ink) 6%, transparent);
+  }
+  .mobile-row[aria-current='page'] {
+    background: color-mix(in oklab, var(--tint-base) 12%, var(--c-surface));
+  }
+  .mobile-sep {
+    height: 1px;
+    margin: 0.5rem 0.65rem;
+    background: var(--c-line);
+  }
+  .mobile-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem 0.9rem;
+    border-top: 1px solid var(--c-line);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav .mobile-scrim,
+    .mobile-nav .mobile-drawer,
+    .mobile-group-body,
+    .mobile-group-head :global(svg) {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  :global(html[data-menu-open]),
+  :global(html[data-search-active]) {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  /* Transparent at the top of the page; a flat bar with a hairline once scrolled. */
+  .nav-glass {
+    background-color: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 0.3s var(--ease-out-soft),
+      border-color 0.3s var(--ease-out-soft);
+  }
+  :global(html[data-scrolled]) .nav-glass {
+    background-color: var(--c-bg);
+    border-bottom-color: var(--c-line);
+  }
+  @media (max-width: 1023px) {
+    .nav-glass {
+      transition:
+        background-color 0.3s var(--ease-out-soft),
+        border-color 0.3s var(--ease-out-soft),
+        translate 0.3s var(--ease-out-soft);
+    }
+    .nav-glass[data-hidden] {
+      translate: 0 -100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-glass {
+      transition: none;
+    }
+  }
+  :global(:root) #site-header.nav-glass[data-menu-open] {
+    background: var(--c-bg);
+  }
+  /* No hover tile on the bar's icon buttons. Resting is a step off full ink, so
+     hover reads lighter in dark theme and darker in light theme. */
+  .icon-btn {
+    color: color-mix(in oklab, var(--c-ink) 72%, transparent);
+    transition:
+      color 0.2s var(--ease-out-soft),
+      opacity 0.2s ease,
+      visibility 0s 0s;
+  }
+  .icon-btn:hover {
+    background: transparent;
+    color: var(--c-ink);
+  }
+</style>
+
+<script>
+  const set = () => {
+    if (document.documentElement.hasAttribute('data-menu-open')) return;
+    document.documentElement.toggleAttribute('data-scrolled', scrollY > 8);
+  };
+  set();
+  addEventListener('scroll', set, { passive: true });
+
+  const header = document.getElementById('site-header');
+  const mobile = matchMedia('(max-width: 1023px)');
+  let lastY = scrollY;
+  const slide = () => {
+    const y = Math.max(scrollY, 0);
+    const html = document.documentElement;
+    if (!header || !mobile.matches || html.hasAttribute('data-menu-open')) {
+      header?.removeAttribute('data-hidden');
+    } else if (Math.abs(y - lastY) > 6) {
+      const hide = y > lastY && y > header.offsetHeight;
+      header.toggleAttribute('data-hidden', hide && !header.contains(document.activeElement));
+    }
+    if (header && y < header.offsetHeight) header.removeAttribute('data-hidden');
+    if (Math.abs(y - lastY) > 6) lastY = y;
+  };
+  addEventListener('scroll', slide, { passive: true });
+  mobile.addEventListener('change', slide);
+</script>

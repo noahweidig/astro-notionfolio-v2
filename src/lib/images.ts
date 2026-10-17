@@ -1,0 +1,31 @@
+/**
+ * Named responsive-width scales for astro:assets' <Image widths={...}>.
+ * Keep each scale's name tied to its usage context, not its numbers —
+ * if the numbers change, the name should still describe the right thing.
+ */
+export const IMAGE_WIDTHS = {
+  /** List/grid thumbnails, e.g. PostCard */
+  thumbnail: [400, 800, 1200],
+  /** Smaller thumbnails, e.g. AwardCard */
+  thumbnailSmall: [320, 640, 960],
+  /** Full-width hero/cover images, e.g. blog post detail page */
+  hero: [600, 1000, 1600],
+} satisfies Record<string, number[]>;
+
+/** Optimized project screenshots, keyed by slug. Shared by ResearchAreas and
+    ProjectCard so both render the same asset with a real responsive srcset. */
+const projectShots = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/albums/projects/*.webp',
+  { eager: true },
+);
+export const shotFor = (slug: string) =>
+  projectShots[`../assets/albums/projects/${slug}.webp`]?.default;
+
+/** Hero images for publications with a Source link, from
+    scripts/generate-publication-shots.mjs. */
+const pubShots = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/albums/publications/*.webp',
+  { eager: true },
+);
+export const pubShotFor = (slug: string) =>
+  pubShots[`../assets/albums/publications/${slug}.webp`]?.default;

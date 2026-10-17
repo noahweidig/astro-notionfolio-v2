@@ -1,0 +1,258 @@
+---
+import { tagHref, tagIcon } from '../lib/tags';
+import { tintFor } from '../lib/tint';
+import { site } from '../lib/site';
+import Base from './Base.astro';
+import Icon from '../components/Icon.astro';
+import ShareRow from '../components/ShareRow.astro';
+import PageHero from '../components/PageHero.astro';
+import PrevNext from '../components/PrevNext.astro';
+import Toc from '../components/Toc.astro';
+import PostAside from '../components/PostAside.astro';
+import type { Heading } from '../components/Toc.astro';
+import type { Sibling } from '../components/PrevNext.astro';
+
+interface Props {
+  title: string;
+  /** Overrides `title` for <title>/og:title only, when the H1 alone would
+      collide with another page's (e.g. two roles both called "Research
+      Assistant") — the visible heading stays untouched. */
+  metaTitle?: string;
+  description?: string;
+  kicker?: string;
+  meta?: string;
+  author?: string;
+  authorImage?: string;
+  backHref: string;
+  backLabel: string;
+  chips?: string[];
+  links?: { label: string; href: string; variant?: 'primary' | 'ghost'; external?: boolean }[];
+  image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  /** Describes what `image` shows, for og:image:alt / twitter:image:alt. */
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  noindex?: boolean;
+  section: string;
+  prev?: Sibling | null;
+  next?: Sibling | null;
+  headings?: Heading[];
+  readingTime?: string;
+  /** The page's LCP image, forwarded to Base so it preloads ahead of the fonts. */
+  preloadImage?: { href: string; srcset?: string; sizes?: string };
+}
+const {
+  title,
+  metaTitle = title,
+  description,
+  kicker,
+  meta,
+  author,
+  authorImage,
+  backHref,
+  backLabel,
+  chips = [],
+  links = [],
+  image,
+  imageWidth,
+  imageHeight,
+  imageAlt,
+  type = 'article',
+  publishedTime,
+  noindex = false,
+  section,
+  prev,
+  next,
+  headings = [],
+  readingTime,
+  preloadImage,
+} = Astro.props;
+
+/* Reading mode is a blog-post affordance: strip the rails and grow the type. */
+const reading = section === 'Blog';
+
+/* The contents rail needs room beside the measure, so a page that has one
+   widens from the reading shell to the full one. */
+const hasToc = headings.filter((h) => h.depth === 2 || h.depth === 3).length > 1;
+
+/* Metric badges (Altmetric, Dimensions) sit in the header on the chip row — not in the body, where `.prose-nw img` would round, border and
+   stretch the Altmetric image while leaving the Dimensions SVG alone.
+   Rendered here rather than checked with `Astro.slots.has`, so a page that
+   passes the slot but has nothing to put in it (a publication with no DOI)
+   leaves no empty chip row. */
+const badges = Astro.slots.has('badges') ? (await Astro.slots.render('badges')).trim() : '';
+
+/* A cover or screenshot sits in the hero's right column on wide screens (it
+   stacks under the copy on narrow ones). */
+const hasHeroImage = Astro.slots.has('hero-image')
+  ? Boolean((await Astro.slots.render('hero-image')).trim())
+  : false;
+
+/* Text-only fallback for items with no image: a HeroPanel in the same column. */
+/* Rendered once and reused: Icon defines each symbol on its first render only,
+   so a second render of this slot would emit <use> references with no symbol. */
+const heroPanel =
+  !hasHeroImage && Astro.slots.has('hero-panel')
+    ? (await Astro.slots.render('hero-panel')).trim()
+    : '';
+const hasHeroPanel = heroPanel !== '';
+---
+
+<Base
+  title={metaTitle}
+  description={description}
+  image={image}
+  imageWidth={imageWidth}
+  imageHeight={imageHeight}
+  imageAlt={imageAlt}
+  type={type}
+  publishedTime={publishedTime}
+  noindex={noindex}
+  filters={{ section, tags: chips }}
+  preloadImage={preloadImage}
+>
+  <Fragment slot="head">
+    <slot name="head" />
+  </Fragment>
+  <article>
+    <PageHero
+      title={title}
+      kicker={kicker}
+      trail={[{ label: section, href: backHref }]}
+      size="md"
+      hasActions={links.length > 0}
+      hasAside={hasHeroImage || hasHeroPanel}
+    >
+      {meta && !hasHeroPanel && (
+        <p class="mt-4 text-sm text-dim" data-pagefind-ignore>
+          {meta}
+        </p>
+      )}
+
+      {author && (
+        <p class="mt-3 flex items-center gap-2 text-sm text-dim" data-pagefind-ignore>
+          <img
+            src={authorImage ?? site.portrait}
+            alt=""
+            width="28"
+            height="28"
+            loading="eager"
+            decoding="async"
+            class="h-7 w-7 rounded-full object-cover ring-1 ring-accent ring-offset-2 ring-offset-bg-deep"
+          />
+          <span>by {author}</span>
+        </p>
+      )}
+
+      {(chips.length > 0 || badges) && (
+        <div class="mt-5 flex flex-wrap gap-1.5 [&_.badge-pair]:contents" data-pagefind-ignore>
+          {chips.map((c) => (
+            <a
+              href={tagHref(c)}
+              data-tip={`Browse everything tagged ${c}`}
+              class={`chip chip-${tintFor(c)}`}
+            >
+              {tagIcon(c) && <Icon name={tagIcon(c)!} size={12} />}
+              {c}
+            </a>
+          ))}
+          {badges && <Fragment set:html={badges} />}
+        </div>
+      )}
+
+      <Fragment slot="actions">
+        {links.map((l) => (
+          <a
+            class:list={[
+              'btn',
+              'max-w-full whitespace-normal text-center',
+              l.variant === 'primary' ? 'btn-primary' : 'btn-ghost',
+            ]}
+            href={l.href}
+            target={l.external ? '_blank' : undefined}
+            rel={l.external ? 'noopener' : undefined}
+          >
+            {l.label === 'GitHub' && <Icon name="github" size={14} />}
+            {l.label}
+            {l.label === 'BibTeX' && <Icon name="download" size={14} />}
+            {l.external && l.label !== 'GitHub' && <Icon name="external" size={14} />}
+            {l.external && <span class="sr-only-nw"> (opens in a new tab)</span>}
+          </a>
+        ))}
+      </Fragment>
+
+      <Fragment slot="aside">
+        {hasHeroPanel ? (
+          <Fragment set:html={heroPanel} />
+        ) : (
+          <figure class="hero-media" data-zoomable>
+            <slot name="hero-image" />
+          </figure>
+        )}
+      </Fragment>
+    </PageHero>
+
+    {hasToc ? (
+      <div class="shell py-12 md:py-16">
+        <div
+          class="mx-auto grid max-w-none gap-x-10 lg:grid-cols-[1fr_min(46rem,100%)_1fr]"
+          data-article-grid
+        >
+          <div class="hidden lg:col-start-1 lg:row-start-1 lg:block" data-post-aside>
+            <PostAside title={title} readingTime={readingTime} />
+          </div>
+          <div class="min-w-0 lg:col-start-2">
+            {reading && (
+              <div class="no-print mb-6 flex justify-end" data-pagefind-ignore>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm"
+                  data-reading-toggle
+                  aria-pressed="false"
+                  data-tip="Reading mode: just the article"
+                >
+                  <Icon name="reader" size={15} />
+                  <span data-reading-label>Reading mode</span>
+                </button>
+              </div>
+            )}
+            <div class="prose-nw">
+              <slot />
+            </div>
+            <ShareRow title={title} />
+          </div>
+          <div class="lg:col-start-3 lg:row-start-1">
+            <Toc headings={headings} />
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div class="shell-body py-12 md:py-16">
+        {reading && (
+          <div class="no-print mb-6 flex justify-end" data-pagefind-ignore>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              data-reading-toggle
+              aria-pressed="false"
+              data-tip="Reading mode: just the article"
+            >
+              <Icon name="reader" size={15} />
+              <span data-reading-label>Reading mode</span>
+            </button>
+          </div>
+        )}
+        <div class="prose-nw">
+          <slot />
+        </div>
+        <ShareRow title={title} />
+      </div>
+    )}
+
+    <slot name="after" />
+
+    <PrevNext prev={prev} next={next} label={backLabel.replace(/^All /i, '')} />
+  </article>
+</Base>

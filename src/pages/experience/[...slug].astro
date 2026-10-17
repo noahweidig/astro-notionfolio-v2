@@ -1,0 +1,83 @@
+---
+import { getCollection, render } from 'astro:content';
+import Detail from '../../layouts/Detail.astro';
+import HeroFacts from '../../components/HeroFacts.astro';
+import { site } from '../../lib/site';
+import { byDate, truncateTitle, siblingLink } from '../../lib/format';
+
+export async function getStaticPaths() {
+  // Sorted the way the listing is, so "previous" and "next" mean what a reader
+  // saw there rather than an arbitrary collection order.
+  const items = (await getCollection('experience')).sort(byDate);
+  const sibling = siblingLink('experience');
+
+  // Two roles can share a generic title (e.g. "Research Assistant" at
+  // different institutions) — only those need the org appended to <title>,
+  // so every other page's title stays as short as its content allows.
+  const titleCounts = new Map<string, number>();
+  for (const item of items)
+    titleCounts.set(item.data.title, (titleCounts.get(item.data.title) ?? 0) + 1);
+
+  return items.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      prev: sibling(items[i - 1]),
+      next: sibling(items[i + 1]),
+      titleIsDuplicate: (titleCounts.get(entry.data.title) ?? 0) > 1,
+    },
+  }));
+}
+
+const { entry, prev, next, titleIsDuplicate } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const meta = [d.org, d.dates, d.location].filter(Boolean).join(' · ');
+const facts = [
+  { icon: 'briefcase', text: d.org },
+  { icon: 'calendar', text: d.dates },
+  { icon: 'pin', text: d.location },
+].filter((f): f is { icon: string; text: string } => Boolean(f.text));
+
+// Same generic CreativeWork shape the Projects detail page uses — schema.org
+// has no dedicated "past role" entity, so this keeps the page's structured
+// data consistent with the rest of the site rather than inventing a type
+// Google's Rich Results Test wouldn't recognize.
+const experienceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: d.org ? `${d.title}, ${d.org}` : d.title,
+  description: d.description,
+  dateCreated: d.date.toISOString(),
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  keywords: d.categories.length ? d.categories.join(', ') : undefined,
+  about: d['org-url'] ? { '@type': 'Organization', name: d.org, url: d['org-url'] } : undefined,
+  author: { '@id': `${site.url}/#person` },
+};
+---
+
+<Detail
+  title={d.title}
+  metaTitle={truncateTitle(titleIsDuplicate && d.org ? `${d.title} — ${d.org}` : d.title, 45)}
+  description={d.description}
+  kicker="Experience"
+  meta={meta}
+  section="Experience"
+  prev={prev}
+  next={next}
+  backHref="/experience/"
+  backLabel="All experience"
+  links={
+    d['org-url']
+      ? [{ label: d.org ?? 'Organisation', href: d['org-url'], variant: 'ghost', external: true }]
+      : []
+  }
+  image={`/media/og/experience/${entry.id}.webp`}
+  imageAlt={d.org ? `${d.title}, ${d.org}` : d.title}
+  publishedTime={d.date}
+>
+  <HeroFacts slot="hero-panel" facts={facts} />
+  <Content />
+</Detail>
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(experienceLd)}></script>
