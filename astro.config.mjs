@@ -9,6 +9,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { load } from 'js-yaml';
 import { config } from './site.config.ts';
+import { splitSiteUrl, rewriteBuild } from './scripts/lib/base-path.mjs';
 
 const COLLECTIONS = ['blog', 'projects', 'publications', 'awards', 'experience', 'education'];
 
@@ -42,9 +43,14 @@ for (const name of COLLECTIONS) {
   if (newest) lastmodByPath.set(`/${name}/`, newest);
 }
 
+// site.url may carry a path (https://user.github.io/my-repo): the origin is
+// Astro's `site`, the path its `base`. Dev serves from the root either way.
+const { origin: siteOrigin, base: siteBase } = splitSiteUrl(config.site.url);
+const base = process.argv.includes('dev') || process.argv.includes('start') ? '/' : siteBase;
+
 export default defineConfig({
-  site: config.site.url,
-  base: '/',
+  site: siteOrigin,
+  base,
   trailingSlash: 'ignore',
   integrations: [
     sitemap({
@@ -60,6 +66,16 @@ export default defineConfig({
         return item;
       },
     }),
+    // Hand-written root-relative URLs (/projects/, /media/...) get the base put
+    // in front after the build. A no-op when the site is served from a root.
+    {
+      name: 'base-path',
+      hooks: {
+        'astro:build:done': ({ dir }) => {
+          rewriteBuild(fileURLToPath(dir), siteOrigin, siteBase);
+        },
+      },
+    },
     // @astrojs/sitemap has no stylesheet option; add the shared one after it writes.
     {
       name: 'sitemap-stylesheet',

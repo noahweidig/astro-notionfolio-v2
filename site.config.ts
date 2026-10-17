@@ -37,11 +37,12 @@ export const config = {
   // ── Site ────────────────────────────────────────────────────────────────
   site: {
     /**
-     * Production origin, no trailing slash. `npm run sync` (run automatically
-     * before dev and build) propagates it to robots.txt, the manifest and the
-     * redirect pages.
+     * Public URL of the site, no trailing slash. May include a path when the
+     * site is served from a subpath, e.g. https://user.github.io/my-repo (the
+     * build then prefixes every URL with it). `npm run sync` (run before dev
+     * and build) propagates it to robots.txt, the manifest and redirect pages.
      */
-    url: 'https://example.com',
+    url: 'https://noahweidig.com/astro-notionfolio-v2',
     /** true if the site is served from your own domain (writes `public/CNAME`). */
     customDomain: false,
     /** Default social share card. Replace the file or point this elsewhere. */

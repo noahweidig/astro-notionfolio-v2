@@ -5,7 +5,7 @@ compatibility_date = "2026-09-11"
 [vars]
 # Public — GitHub OAuth Client IDs are not secret.
 GITHUB_CLIENT_ID = "your-github-oauth-client-id"
-ALLOWED_ORIGINS = "https://example.com,http://localhost:4321"
+ALLOWED_ORIGINS = "https://noahweidig.com,http://localhost:4321"
 
 # GITHUB_CLIENT_SECRET is set with:
 #   wrangler secret put GITHUB_CLIENT_SECRET
