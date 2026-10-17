@@ -36,13 +36,11 @@ jobs:
           # paths served by separate project-pages repos are covered live by
           # production-audit.yml, which crawls the deployed site weekly.
           # Accepted codes: 403/429 (bot blocking), 405 (Formspree POST
-          # endpoint), 415 (oakfirescience.com's WAF rejects the CI request
+          # endpoint), 415 (a site's WAF rejects the CI request
           # though the page loads 200 in a browser), 999 (LinkedIn).
-          # Excluded hosts have TLS setups rustls can't negotiate, or reset
-          # the connection outright: the UF library's thesis repository
-          # (original-ufdc.uflib.ufl.edu) serves the linked PDF fine in a
-          # browser but resets CI's connection, and returns 403 to anything
-          # that is not one.
+          # Excluded: the example.* placeholder hosts and the fictional profile
+          # URLs in site.config.ts and the sample content. Remove them once the
+          # config holds real values.
           args: >-
             --no-progress
             --root-dir ${{ github.workspace }}/dist
@@ -57,16 +55,5 @@ jobs:
             --exclude 'scholar\.google\.com/citations\?user=XXXXXXXXXXXX'
             --exclude 'orcid\.org/0000-0000-0000-0000'
             --exclude 'researchgate\.net/profile/John-Smith'
-          # browser but resets CI's connection, and returns 403 to anything
-          # that is not one.
-          args: >-
-            --no-progress
-            --root-dir ${{ github.workspace }}/dist
-            --accept '100..=103,200..=299,403,405,415,429,999'
-            --exclude 'example\.com'
-            --exclude 'ecos\.fws\.gov'
-            --exclude 'usda\.gov'
-            --exclude 'victoriamdonovan\.org'
-            --exclude 'original-ufdc\.uflib\.ufl\.edu'
             'dist/**/*.html'
           fail: true
