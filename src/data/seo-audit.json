@@ -1,11 +1,386 @@
 {
-  "generatedAt": "2026-01-01T00:00:00.000Z",
-  "totalPages": 0,
-  "score": 0,
+  "generatedAt": "2026-10-19T15:15:42.937Z",
+  "totalPages": 59,
+  "score": 92,
   "totals": {
-    "passes": 0,
-    "warnings": 0,
+    "passes": 779,
+    "warnings": 64,
     "errors": 0
   },
-  "audits": []
+  "audits": [
+    {
+      "name": "Meta Tags",
+      "passes": 295,
+      "warnings": 1,
+      "errors": 0,
+      "issues": [
+        {
+          "page": "/experience/adipiscing-intern/index.html, /experience/amet-research/index.html, /experience/dolor-sit-agency/index.html, /experience/lorem-ipsum-lab/index.html",
+          "message": "Duplicate meta description: \"Lorem ipsum dolor sit amet, consectetur adipiscing...\"",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "name": "Schema Markup",
+      "passes": 150,
+      "warnings": 0,
+      "errors": 0,
+      "issues": []
+    },
+    {
+      "name": "Hreflang",
+      "passes": 1,
+      "warnings": 0,
+      "errors": 0,
+      "issues": []
+    },
+    {
+      "name": "Sitemap",
+      "passes": 1,
+      "warnings": 59,
+      "errors": 0,
+      "issues": [
+        {
+          "page": "/about/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/ai/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/adipiscing-fellowship/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/amet-consectetur-grant/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/dolor-sit-scholarship/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/elit-travel-grant/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/lorem-ipsum-award/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/awards/tempor-poster-award/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/blog/focus/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/blog/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/blog/lorem-ipsum-dolor/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/blog/welcome/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/contact/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/cv/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/education/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/education/ipsum-bachelors/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/education/lorem-masters/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/experience/adipiscing-intern/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/experience/amet-research/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/experience/dolor-sit-agency/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/experience/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/experience/lorem-ipsum-lab/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/privacy/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/alpha/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/bravo/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/charlie/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/delta/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/echo/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/foxtrot/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/projects/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/doe-consectetur-25/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/doe-referee-report-25/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/news-lorem-feature-25/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/roe-adipiscing-24/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/smith-dolor-sit-amet-23/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/smith-labore-talk-23/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/smith-lorem-ipsum-24/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/smith-tempor-talk-24/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/smith-thesis-22/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/dashboards/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/data-science/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/journal-article/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/library/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/media-coverage/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/open-source/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/peer-review/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/presentation/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/tech/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/thesis/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/thoughts/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/tools/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/tutorial/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tags/web/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/tech/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        },
+        {
+          "page": "/terms/",
+          "message": "Page built but not found in sitemap",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "passes": 38,
+      "warnings": 1,
+      "errors": 0,
+      "issues": [
+        {
+          "page": "/index.html",
+          "message": "3 images without lazy loading",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "name": "Headings",
+      "passes": 118,
+      "warnings": 2,
+      "errors": 0,
+      "issues": [
+        {
+          "page": "/index.html",
+          "message": "<h1> too long (132 chars): \"Lorem ipsum dolor. Real insights, answers, impact, clarity, action.Lor...\"",
+          "severity": "warning"
+        },
+        {
+          "page": "/publications/smith-lorem-ipsum-24/index.html",
+          "message": "<h1> too long (73 chars): \"Lorem ipsum dolor sit amet: consectetur adipiscing elit in sed do eius...\"",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "name": "Performance",
+      "passes": 176,
+      "warnings": 1,
+      "errors": 0,
+      "issues": [
+        {
+          "page": "/index.html",
+          "message": "Total HTML size exceeds 100KB (155.2KB)",
+          "severity": "warning"
+        }
+      ]
+    }
+  ]
 }
