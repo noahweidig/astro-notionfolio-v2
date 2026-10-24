@@ -48,7 +48,7 @@
     "@types/sanitize-html": "^2.16.1",
     "axe-core": "^4.14.0",
     "js-yaml": "^5.4.3",
-    "lucide-static": "^1.55.0",
+    "lucide-static": "^1.58.0",
     "pagefind": "^1.5.2",
     "pdf-lib": "^1.17.1",
     "prettier": "^3.9.10",
